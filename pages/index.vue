@@ -1,5 +1,5 @@
 <template>
-    <div class="card flex justify-center items-center px-5 my-10">
+    <div class="card flex justify-center px-5 my-10">
       <Stepper value="1" class="basis-[50rem]">
         <StepList>
           <Step value="1">Step 1</Step>
@@ -13,12 +13,12 @@
               <div class="flex flex-col h-full">
                 <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
                   <div class="card flex justify-center py-10">
-                    <div class="flex flex-col gap-2">
-                      <h2>Hello, {{ clientName }} ({{ clientCode }})</h2>
-                      <div class="flex justify-center gap-4 mt-4">
-                        <Button label="Access Location" @click="getLocation" />
-                        <Button label="Access Camera" @click="startCamera" />
-                      </div>
+                    <div class=" gap-2">
+                      <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
+                      <div class="font-bold my-2"> <Button label="Access Location" @click="getLocation"  class="w-full"/></div>
+                       <div class="font-bold my-2"> <Button label="Access Camera" @click="startCamera" class="w-full"/></div>
+                       
+                      
                     </div>
                   </div>
                 </div>
@@ -35,23 +35,32 @@
               <div class="flex flex-col h-full">
                 <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
                   <div class="card flex justify-center py-10">
-                    <div class="flex flex-col gap-2">
+                    
+                    <div class="gap-2">
+                        <div v-if="coordinates" class="mt-4 px-5">
+                        <div class="font-bold my-2">{{ clientName }} ({{ clientCode }}),</div>
+                        <div class="font-semibold">your Location is,</div>
+                        <p> <span  class="font-semibold">Latitude: </span>
+                            {{ coordinates.latitude }}</p>
+                        <p> <span  class="font-semibold">Longitude:</span> {{ coordinates.longitude }}</p>
+                      </div>
+                      <div v-else class="mt-4 text-red-500">
+                        <p>Please allow GPS access to get your location.</p>
+                        <Button label="Reload" @click="reloadPage" />
+                      </div>
                       <div v-if="isCameraActive && !capturedImage" class="mt-4">
                         <video ref="video" autoplay playsinline class="w-full h-[200px]"></video>
-                        <div class="flex justify-center mt-2">
-                          <Button label="Capture Image" @click="captureImage" />
+                        <div class="flex justify-center mt-2 px-5">
+                          <Button label="Capture Image" class="w-full" @click="captureImage" />
                         </div>
                       </div>
                       <div v-if="capturedImage" class="mt-4">
                         <img :src="capturedImage" alt="Captured Image" class="w-full h-[200px]" />
                         <div class="flex justify-center mt-2">
-                          <Button label="Retake" @click="retakeCapture" />
+                          <Button label="Retake" @click="retakeCapture" class="w-full"/>
                         </div>
                       </div>
-                      <div v-if="coordinates" class="mt-4">
-                        <p>Latitude: {{ coordinates.latitude }}</p>
-                        <p>Longitude: {{ coordinates.longitude }}</p>
-                      </div>
+                     
                     </div>
                   </div>
                 </div>
@@ -62,26 +71,24 @@
               </div>
             </div>
           </StepPanel>
-  
-          <!-- Step 3 Panel -->
           <StepPanel v-slot="{ activateCallback }" value="3">
-            <div class="border-2 border-dashed">
-              <div class="flex flex-col h-full">
-                <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
-                  <div class="card flex justify-center py-10">
-                    <div class="flex flex-col gap-2">
-                      <h2>Thank You, {{ clientName }}!</h2>
-                      <p>Your IP verification is completed.</p>
-                      <Button label="Proceed to E-Sign" @click="proceedToESign" />
-                    </div>
+          <div class="border-2 border-dashed rounded-lg shadow-lg">
+            <div class="flex flex-col h-full">
+              <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
+                <div class="card flex flex-col items-center justify-center py-10 px-6">
+                  <h2 class="text-xl font-bold ">Thank You, {{ clientName }}!</h2>
+                  <p class="text-lg text-gray-700 mt-2">Your IP verification is completed.</p>
+                  <div class="mt-4">
+                    <Button label="Proceed to E-Sign" @click="proceedToESign" class="bg-blue-600 text-white hover:bg-blue-700 transition duration-200" />
                   </div>
                 </div>
               </div>
-              <div class="p-4 bg-gray-50">
-                <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('2')" />
-              </div>
             </div>
-          </StepPanel>
+            <div class="p-4 bg-gray-50">
+              <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('2')" />
+            </div>
+          </div>
+        </StepPanel>
         </StepPanels>
       </Stepper>
     </div>
@@ -172,6 +179,10 @@
     startCamera(); // Restart the camera
   };
   
+  const reloadPage = () => {
+    location.reload(); // Reload the current page
+  };
+  
   const proceedToESign = () => {
     // Logic to proceed to e-signing
     alert("Proceeding to E-Sign...");
@@ -179,6 +190,6 @@
   };
   
   onMounted(() => {
-// Get location on mount
+ 
   });
   </script>
