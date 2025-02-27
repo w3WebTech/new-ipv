@@ -11,7 +11,7 @@
           <StepPanel v-slot="{ activateCallback }" value="1">
             <div class="border-2 border-dashed">
               <div class="flex flex-col h-full">
-                <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
+                <div class="border-gray-200 rounded bg-gray-50  font-medium">
                   <div class="card flex justify-center py-10">
                     <div class=" gap-2">
                       <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
@@ -33,8 +33,8 @@
           <StepPanel v-slot="{ activateCallback }" value="2">
             <div class="border-2 border-dashed">
               <div class="flex flex-col h-full">
-                <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
-                  <div class="card flex justify-center py-10">
+                <div class="border-gray-200 rounded bg-gray-50 font-medium">
+                  <div class="card py-10">
                     
                     <div class="gap-2">
                         <div v-if="coordinates" class="mt-4 px-5">
@@ -56,7 +56,7 @@
                       </div>
                       <div v-if="capturedImage" class="mt-4">
                         <img :src="capturedImage" alt="Captured Image" class="w-full h-[200px]" />
-                        <div class="flex justify-center mt-2">
+                        <div class="flex justify-center mt-2 px-5">
                           <Button label="Retake" @click="retakeCapture" class="w-full"/>
                         </div>
                       </div>
