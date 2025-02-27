@@ -111,6 +111,8 @@
   import Message from 'primevue/message';
   import { useRoute } from 'vue-router';
   
+import 'primeicons/primeicons.css'
+
   // Accept clientName and clientCode as props
   const route = useRoute();
   const clientName = ref(route.query.clientName || ''); // Get clientName from route
