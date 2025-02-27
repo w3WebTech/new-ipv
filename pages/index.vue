@@ -15,8 +15,11 @@
                   <div class="card flex justify-center py-10">
                     <div class=" gap-2">
                       <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
-                      <div class="font-bold my-2"> <Button label="Access Location" @click="getLocation"  class="w-full"/></div>
-                       <div class="font-bold my-2"> <Button label="Access Camera" @click="startCamera" class="w-full"/></div>
+                      <div class="font-bold flex justify-center">
+                        How to do
+                      </div>
+                      <div class="font-bold my-2"> <Button label="Enable GPS" @click="getLocation"  class="w-full"/></div>
+                       <div class="font-bold my-2"> <Button label="Allow Camera" @click="startCamera" class="w-full"/></div>
                        
                       
                     </div>
