@@ -54,8 +54,8 @@
                           <Button label="Capture Image" class="w-full" @click="captureImage" />
                         </div>
                       </div>
-                      <div v-if="capturedImage" class="mt-4">
-                        <img :src="capturedImage" alt="Captured Image" class="w-full h-[200px]" />
+                      <div v-if="capturedImage" class="mt-4 ">
+                        <img :src="capturedImage" alt="Captured Image" class="w-full h-[200px] px-5"  />
                         <div class="flex justify-center mt-2 px-5">
                           <Button label="Retake" @click="retakeCapture" class="w-full"/>
                         </div>
