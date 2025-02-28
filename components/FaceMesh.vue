@@ -90,13 +90,13 @@
         const noseTip = landmarks[1]; // Nose tip landmark
         const leftEye = landmarks[33]; // Left eye landmark
         const rightEye = landmarks[263]; // Right eye landmark
+        const chin = landmarks[152]; // Chin landmark
   
-        const eyeMidpointX = (leftEye.x + rightEye.x) / 2;
-        const eyeMidpointY = (leftEye.y + rightEye.y) / 2;
+        // Calculate face angle using nose tip and chin
+        const faceAngle = Math.atan2(chin.y - noseTip.y, chin.x - noseTip.x) * (180 / Math.PI);
   
-        const faceAngle = Math.atan2(eyeMidpointY - noseTip.y, eyeMidpointX - noseTip.x) * (180 / Math.PI);
-  
-        if (Math.abs(faceAngle) > 10) {
+        // Adjust threshold for face alignment (more lenient)
+        if (Math.abs(faceAngle) > 15) { // Increased threshold from 10 to 15
           isFaceStraight.value = false;
         } else {
           isFaceStraight.value = true;
