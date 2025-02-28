@@ -48,6 +48,8 @@
     });
   
     faceMesh.onResults((results) => {
+      console.log('FaceMesh results:', results); // Debugging: Log results
+  
       const ctx = canvas.value.getContext('2d');
       const width = video.value.videoWidth;
       const height = video.value.videoHeight;
@@ -131,28 +133,23 @@
         }
   
         // Log conditions for debugging
-        alert(
-  JSON.stringify(
-    {
-      isFaceStraight: isFaceStraight.value,
-      isFaceTooClose: isFaceTooClose.value,
-      isFaceTooFar: isFaceTooFar.value,
-      isEyesClosed: isEyesClosed.value,
-      isMultipleFaces: isMultipleFaces.value,
-    },
-    null,
-    2 // Indentation for pretty-printing
-  )
-);
+        console.log({
+          isFaceStraight: isFaceStraight.value,
+          isFaceTooClose: isFaceTooClose.value,
+          isFaceTooFar: isFaceTooFar.value,
+          isEyesClosed: isEyesClosed.value,
+          isMultipleFaces: isMultipleFaces.value,
+        });
   
         // Capture image only if all conditions are met
         if (
-          
+          isFaceStraight.value &&
           !isFaceTooClose.value &&
           !isFaceTooFar.value &&
           !isEyesClosed.value &&
           !isMultipleFaces.value
         ) {
+          console.log('All conditions met. Capturing image...'); // Debugging
           captureImage();
         }
       } else {
