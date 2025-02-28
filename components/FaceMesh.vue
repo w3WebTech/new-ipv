@@ -143,7 +143,7 @@
   
         // Capture image only if all conditions are met
         if (
-          isFaceStraight.value &&
+          
           !isFaceTooClose.value &&
           !isFaceTooFar.value &&
           !isEyesClosed.value &&
