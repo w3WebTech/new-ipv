@@ -2,8 +2,13 @@
     <div class="relative">
       <video v-if="!isImageCaptured" ref="video" class="w-full h-auto" autoplay playsinline></video>
       <canvas v-if="!isImageCaptured" ref="canvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
-      <div v-if="!isFaceDetected && !isImageCaptured" class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-        <p class="text-white text-lg">Please position your face correctly in the frame.</p>
+      <div v-if="!isImageCaptured" class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+        <p v-if="!isFaceDetected" class="text-white text-lg">Please position your face correctly in the frame.</p>
+        <p v-if="isFaceDetected && !isFaceStraight" class="text-white text-lg">Please look straight at the camera.</p>
+        <p v-if="isFaceDetected && isFaceTooClose" class="text-white text-lg">Please move slightly away from the camera.</p>
+        <p v-if="isFaceDetected && isFaceTooFar" class="text-white text-lg">Please move closer to the camera.</p>
+        <p v-if="isFaceDetected && isEyesClosed" class="text-white text-lg">Please keep your eyes open.</p>
+        <p v-if="isFaceDetected && isMultipleFaces" class="text-white text-lg">Only one face should be in the frame.</p>
       </div>
       <div v-if="isImageCaptured" class="mt-4">
         <img :src="capturedImage" alt="Captured Image" class="w-full h-auto" />
@@ -22,7 +27,11 @@
   const capturedImage = ref(null);
   const isFaceDetected = ref(false);
   const isImageCaptured = ref(false);
-  const eyeBlinkCount = ref(0);
+  const isFaceStraight = ref(false);
+  const isFaceTooClose = ref(false);
+  const isFaceTooFar = ref(false);
+  const isEyesClosed = ref(false);
+  const isMultipleFaces = ref(false);
   
   let faceMesh;
   
@@ -52,38 +61,87 @@
       if (results.multiFaceLandmarks) {
         isFaceDetected.value = true; // Face detected
   
-        for (const landmarks of results.multiFaceLandmarks) {
-          drawConnectors(ctx, landmarks, FACEMESH_TESSELATION, {
-            color: '#C0C0C0',
-            lineWidth: 1,
-          });
+        // Check for multiple faces
+        if (results.multiFaceLandmarks.length > 1) {
+          isMultipleFaces.value = true;
+          return;
+        } else {
+          isMultipleFaces.value = false;
+        }
   
-          // Draw landmarks on the canvas
-          landmarks.forEach((landmark) => {
-            const x = landmark.x * width;
-            const y = landmark.y * height;
-            ctx.beginPath();
-            ctx.arc(x, y, 2, 0, 2 * Math.PI);
-            ctx.fillStyle = 'red';
-            ctx.fill();
-          });
+        const landmarks = results.multiFaceLandmarks[0];
   
-          // Check for eye blinks (simplified logic)
-          const leftEye = landmarks[33]; // Example landmark for left eye
-          const rightEye = landmarks[263]; // Example landmark for right eye
-          if (leftEye.y > landmarks[160].y && rightEye.y > landmarks[386].y) {
-            eyeBlinkCount.value++;
-          }
+        // Draw landmarks on the canvas
+        drawConnectors(ctx, landmarks, FACEMESH_TESSELATION, {
+          color: '#C0C0C0',
+          lineWidth: 1,
+        });
   
-          // Capture image after 3 eye blinks
-          if (eyeBlinkCount.value >= 3 && !isImageCaptured.value) {
-            captureImage();
-            eyeBlinkCount.value = 0; // Reset blink count
-          }
+        landmarks.forEach((landmark) => {
+          const x = landmark.x * width;
+          const y = landmark.y * height;
+          ctx.beginPath();
+          ctx.arc(x, y, 2, 0, 2 * Math.PI);
+          ctx.fillStyle = 'red';
+          ctx.fill();
+        });
+  
+        // Check face alignment (looking straight)
+        const noseTip = landmarks[1]; // Nose tip landmark
+        const leftEye = landmarks[33]; // Left eye landmark
+        const rightEye = landmarks[263]; // Right eye landmark
+  
+        const eyeMidpointX = (leftEye.x + rightEye.x) / 2;
+        const eyeMidpointY = (leftEye.y + rightEye.y) / 2;
+  
+        const faceAngle = Math.atan2(eyeMidpointY - noseTip.y, eyeMidpointX - noseTip.x) * (180 / Math.PI);
+  
+        if (Math.abs(faceAngle) > 10) {
+          isFaceStraight.value = false;
+        } else {
+          isFaceStraight.value = true;
+        }
+  
+        // Check face distance (too close or too far)
+        const faceWidth = Math.abs(leftEye.x - rightEye.x) * width;
+        if (faceWidth > 300) {
+          isFaceTooClose.value = true;
+          isFaceTooFar.value = false;
+        } else if (faceWidth < 150) {
+          isFaceTooFar.value = true;
+          isFaceTooClose.value = false;
+        } else {
+          isFaceTooClose.value = false;
+          isFaceTooFar.value = false;
+        }
+  
+        // Check if eyes are closed
+        const leftEyeTop = landmarks[159]; // Top of left eye
+        const leftEyeBottom = landmarks[145]; // Bottom of left eye
+        const rightEyeTop = landmarks[386]; // Top of right eye
+        const rightEyeBottom = landmarks[374]; // Bottom of right eye
+  
+        const leftEyeHeight = Math.abs(leftEyeTop.y - leftEyeBottom.y);
+        const rightEyeHeight = Math.abs(rightEyeTop.y - rightEyeBottom.y);
+  
+        if (leftEyeHeight < 0.02 || rightEyeHeight < 0.02) {
+          isEyesClosed.value = true;
+        } else {
+          isEyesClosed.value = false;
+        }
+  
+        // Capture image only if all conditions are met
+        if (
+          isFaceStraight.value &&
+          !isFaceTooClose.value &&
+          !isFaceTooFar.value &&
+          !isEyesClosed.value &&
+          !isMultipleFaces.value
+        ) {
+          captureImage();
         }
       } else {
         isFaceDetected.value = false; // No face detected
-        eyeBlinkCount.value = 0; // Reset blink count
       }
     });
   
