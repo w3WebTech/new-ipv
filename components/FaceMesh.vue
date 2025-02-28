@@ -131,13 +131,19 @@
         }
   
         // Log conditions for debugging
-       alert({
-          isFaceStraight: isFaceStraight.value,
-          isFaceTooClose: isFaceTooClose.value,
-          isFaceTooFar: isFaceTooFar.value,
-          isEyesClosed: isEyesClosed.value,
-          isMultipleFaces: isMultipleFaces.value,
-        });
+        alert(
+  JSON.stringify(
+    {
+      isFaceStraight: isFaceStraight.value,
+      isFaceTooClose: isFaceTooClose.value,
+      isFaceTooFar: isFaceTooFar.value,
+      isEyesClosed: isEyesClosed.value,
+      isMultipleFaces: isMultipleFaces.value,
+    },
+    null,
+    2 // Indentation for pretty-printing
+  )
+);
   
         // Capture image only if all conditions are met
         if (
