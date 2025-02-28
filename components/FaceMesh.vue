@@ -130,6 +130,15 @@
           isEyesClosed.value = false;
         }
   
+        // Log conditions for debugging
+       alert({
+          isFaceStraight: isFaceStraight.value,
+          isFaceTooClose: isFaceTooClose.value,
+          isFaceTooFar: isFaceTooFar.value,
+          isEyesClosed: isEyesClosed.value,
+          isMultipleFaces: isMultipleFaces.value,
+        });
+  
         // Capture image only if all conditions are met
         if (
           isFaceStraight.value &&
