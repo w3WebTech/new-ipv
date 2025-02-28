@@ -1,13 +1,12 @@
 <template>
     <div class="relative">
       <video v-if="!isImageCaptured" ref="video" class="w-full h-auto" autoplay playsinline></video>
-      <canvas ref="canvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
+      <canvas v-if="!isImageCaptured" ref="canvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
       <div v-if="!isFaceDetected && !isImageCaptured" class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
         <p class="text-white text-lg">Please position your face correctly in the frame.</p>
       </div>
       <div v-if="isImageCaptured" class="mt-4">
         <img :src="capturedImage" alt="Captured Image" class="w-full h-auto" />
-        <canvas ref="capturedCanvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
       </div>
     </div>
   </template>
@@ -20,7 +19,6 @@
   
   const video = ref(null);
   const canvas = ref(null);
-  const capturedCanvas = ref(null);
   const capturedImage = ref(null);
   const isFaceDetected = ref(false);
   const isImageCaptured = ref(false);
@@ -116,33 +114,6 @@
     // Convert the canvas to a data URL and set it as the captured image
     capturedImage.value = tempCanvas.toDataURL('image/png');
     isImageCaptured.value = true; // Stop showing live camera feed
-  
-    // Draw landmarks on the captured image
-    const capturedCtx = capturedCanvas.value.getContext('2d');
-    capturedCanvas.value.width = width;
-    capturedCanvas.value.height = height;
-    capturedCtx.drawImage(tempCanvas, 0, 0, width, height);
-  
-    // Redraw landmarks on the captured image
-    faceMesh.onResults((results) => {
-      if (results.multiFaceLandmarks) {
-        for (const landmarks of results.multiFaceLandmarks) {
-          drawConnectors(capturedCtx, landmarks, FACEMESH_TESSELATION, {
-            color: '#C0C0C0',
-            lineWidth: 1,
-          });
-  
-          landmarks.forEach((landmark) => {
-            const x = landmark.x * width;
-            const y = landmark.y * height;
-            capturedCtx.beginPath();
-            capturedCtx.arc(x, y, 2, 0, 2 * Math.PI);
-            capturedCtx.fillStyle = 'red';
-            capturedCtx.fill();
-          });
-        }
-      }
-    });
   };
   </script>
   
