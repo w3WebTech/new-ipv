@@ -101,7 +101,7 @@ const eyeMidpointY = (leftEye.y + rightEye.y) / 2;
 const faceAngle = Math.atan2(chin.y - eyeMidpointY, chin.x - eyeMidpointX) * (180 / Math.PI);
 
 // Log the calculated face angle for debugging
-console.log('Face Angle:', faceAngle);
+alert( faceAngle,'Face Angle:');
         if (Math.abs(faceAngle) > 15) { // Increased threshold from 10 to 15
           isFaceStraight.value = false;
         } else {
