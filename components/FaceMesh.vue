@@ -1,11 +1,11 @@
 <template>
     <div class="relative">
-      <video ref="video" class="w-full h-auto" autoplay playsinline></video>
+      <video v-if="!isImageCaptured" ref="video" class="w-full h-auto" autoplay playsinline></video>
       <canvas ref="canvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
-      <div v-if="!isFaceDetected" class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+      <div v-if="!isFaceDetected && !isImageCaptured" class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
         <p class="text-white text-lg">Please position your face correctly in the frame.</p>
       </div>
-      <div v-if="capturedImage" class="mt-4">
+      <div v-if="isImageCaptured" class="mt-4">
         <img :src="capturedImage" alt="Captured Image" class="w-full h-auto" />
         <canvas ref="capturedCanvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
       </div>
@@ -23,6 +23,8 @@
   const capturedCanvas = ref(null);
   const capturedImage = ref(null);
   const isFaceDetected = ref(false);
+  const isImageCaptured = ref(false);
+  const eyeBlinkCount = ref(0);
   
   let faceMesh;
   
@@ -67,14 +69,23 @@
             ctx.fillStyle = 'red';
             ctx.fill();
           });
-        }
   
-        // Automatically capture image if face is detected
-        if (!capturedImage.value) {
-          captureImage();
+          // Check for eye blinks (simplified logic)
+          const leftEye = landmarks[33]; // Example landmark for left eye
+          const rightEye = landmarks[263]; // Example landmark for right eye
+          if (leftEye.y > landmarks[160].y && rightEye.y > landmarks[386].y) {
+            eyeBlinkCount.value++;
+          }
+  
+          // Capture image after 3 eye blinks
+          if (eyeBlinkCount.value >= 3 && !isImageCaptured.value) {
+            captureImage();
+            eyeBlinkCount.value = 0; // Reset blink count
+          }
         }
       } else {
         isFaceDetected.value = false; // No face detected
+        eyeBlinkCount.value = 0; // Reset blink count
       }
     });
   
@@ -104,6 +115,7 @@
   
     // Convert the canvas to a data URL and set it as the captured image
     capturedImage.value = tempCanvas.toDataURL('image/png');
+    isImageCaptured.value = true; // Stop showing live camera feed
   
     // Draw landmarks on the captured image
     const capturedCtx = capturedCanvas.value.getContext('2d');
