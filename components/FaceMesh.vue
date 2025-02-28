@@ -2,7 +2,7 @@
     <div class="relative">
       <video v-if="!isImageCaptured" ref="video" class="w-full h-auto" autoplay playsinline></video>
       <canvas v-if="!isImageCaptured" ref="canvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
-      <div v-if="!isImageCaptured" class="absolute top-0 left-0 w-full h-full flex-col items-center justify-center bg-black bg-opacity-50">
+      <div v-if="!isImageCaptured" class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center  bg-black bg-opacity-50">
         <p v-if="!isFaceDetected" class="text-white text-lg">Please position your face correctly in the frame.</p>
         <p v-if="isFaceDetected && !isFaceStraight" class="text-white text-lg">Please look straight at the camera.</p>
         <p v-if="isFaceDetected && isFaceTooClose" class="text-white text-lg">Please move slightly away from the camera.</p>
