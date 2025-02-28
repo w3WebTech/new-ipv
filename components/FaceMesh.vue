@@ -2,9 +2,9 @@
     <div class="relative">
       <video ref="video" class="w-full h-auto" autoplay playsinline></video>
       <canvas ref="canvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
-      <button @click="captureImage" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
-        Capture Image
-      </button>
+      <div v-if="!isFaceDetected" class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+        <p class="text-white text-lg">Please position your face correctly in the frame.</p>
+      </div>
       <div v-if="capturedImage" class="mt-4">
         <img :src="capturedImage" alt="Captured Image" class="w-full h-auto" />
         <canvas ref="capturedCanvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
@@ -22,6 +22,7 @@
   const canvas = ref(null);
   const capturedCanvas = ref(null);
   const capturedImage = ref(null);
+  const isFaceDetected = ref(false);
   
   let faceMesh;
   
@@ -49,6 +50,8 @@
       ctx.clearRect(0, 0, width, height);
   
       if (results.multiFaceLandmarks) {
+        isFaceDetected.value = true; // Face detected
+  
         for (const landmarks of results.multiFaceLandmarks) {
           drawConnectors(ctx, landmarks, FACEMESH_TESSELATION, {
             color: '#C0C0C0',
@@ -65,6 +68,13 @@
             ctx.fill();
           });
         }
+  
+        // Automatically capture image if face is detected
+        if (!capturedImage.value) {
+          captureImage();
+        }
+      } else {
+        isFaceDetected.value = false; // No face detected
       }
     });
   
@@ -126,4 +136,10 @@
   
   <style scoped>
   /* Add custom styles if needed */
+  .relative {
+    position: relative;
+  }
+  .absolute {
+    position: absolute;
+  }
   </style>
