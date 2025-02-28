@@ -88,16 +88,20 @@
           ctx.fill();
         });
   
-        // Check face alignment (looking straight)
         const noseTip = landmarks[1]; // Nose tip landmark
-        const leftEye = landmarks[33]; // Left eye landmark
-        const rightEye = landmarks[263]; // Right eye landmark
-        const chin = landmarks[152]; // Chin landmark
-  
-        // Calculate face angle using nose tip and chin
-        const faceAngle = Math.atan2(chin.y - noseTip.y, chin.x - noseTip.x) * (180 / Math.PI);
-  
-        // Adjust threshold for face alignment (more lenient)
+const leftEye = landmarks[33]; // Left eye landmark
+const rightEye = landmarks[263]; // Right eye landmark
+const chin = landmarks[152]; // Chin landmark
+
+// Calculate the midpoint between the eyes
+const eyeMidpointX = (leftEye.x + rightEye.x) / 2;
+const eyeMidpointY = (leftEye.y + rightEye.y) / 2;
+
+// Calculate the angle using the nose tip and the midpoint of the eyes
+const faceAngle = Math.atan2(chin.y - eyeMidpointY, chin.x - eyeMidpointX) * (180 / Math.PI);
+
+// Log the calculated face angle for debugging
+console.log('Face Angle:', faceAngle);
         if (Math.abs(faceAngle) > 15) { // Increased threshold from 10 to 15
           isFaceStraight.value = false;
         } else {
