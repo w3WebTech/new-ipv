@@ -226,7 +226,6 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
-  debugger
   const video = document.querySelector('video');
   if (!video || !video.videoWidth || !video.videoHeight) {
     toast.add({
@@ -244,9 +243,10 @@ const captureImage = async () => {
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = canvas.toDataURL('image/png');
-debugger
+
   const img = new Image();
   img.src = imageData;
+
   img.onload = async () => {
     // Check if the image is valid
     if (!img.complete || img.naturalWidth === 0) {
@@ -272,6 +272,7 @@ debugger
 
     try {
       const results = await faceMesh.send({ image: img });
+
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         capturedImage.value = imageData;
         toast.add({
@@ -299,8 +300,18 @@ debugger
     }
   };
 
+  img.onerror = () => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Failed to load the captured image. Please try again.',
+      life: 3000,
+    });
+  };
+
   closeCameraModal();
 };
+
 
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
