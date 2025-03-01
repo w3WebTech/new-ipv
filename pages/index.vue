@@ -181,11 +181,19 @@ const startCamera = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
     const video = document.querySelector('video');
-    video.srcObject = stream;
+
+    // Check if srcObject is supported
+    if ('srcObject' in video) {
+      video.srcObject = stream; // Use srcObject if available
+    } else {
+      // Fallback for older browsers
+      video.src = URL.createObjectURL(stream);
+    }
+
     isCameraActive.value = true;
   } catch (error) {
     console.error("Error accessing camera:", error);
-    alert("Error accessing camera.");
+    alert("Error accessing camera: " + error.message); // Show specific error message
   }
 };
 
