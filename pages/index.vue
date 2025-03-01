@@ -226,6 +226,7 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
+  debugger
   const video = document.querySelector('video');
   if (!video || !video.videoWidth || !video.videoHeight) {
     toast.add({
@@ -243,7 +244,7 @@ const captureImage = async () => {
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = canvas.toDataURL('image/png');
-
+debugger
   const img = new Image();
   img.src = imageData;
   img.onload = async () => {
