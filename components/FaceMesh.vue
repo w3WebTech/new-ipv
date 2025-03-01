@@ -109,7 +109,7 @@
       </div>
     </Transition>
 
-    <!-- Toast Component -->
+  
     <Toast />
   </div>
 </template>
@@ -137,7 +137,6 @@ const isCameraModalOpen = ref(false);
 const address = ref(null);
 const toast = useToast();
 
-// Initialize Face Mesh
 const faceMesh = new FaceMesh({
   locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
 });
@@ -149,7 +148,6 @@ faceMesh.setOptions({
   minTrackingConfidence: 0.5,
 });
 
-// Get user location
 const getLocation = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -167,7 +165,6 @@ const getLocation = () => {
   }
 };
 
-// Get address from coordinates
 const getAddressFromCoordinates = async (lat, lon) => {
   try {
     const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
@@ -177,33 +174,41 @@ const getAddressFromCoordinates = async (lat, lon) => {
     } else {
       address.value = "Address not found.";
     }
-  } catch (error) {
+  } catch
+  (error) {
     console.error("Error fetching address:", error);
     address.value = "Error fetching address.";
   }
 };
 
-// Open camera modal
 const openCameraModal = async () => {
   isCameraModalOpen.value = true;
   await startCamera();
 };
 
-// Start camera
 const startCamera = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
     const video = document.querySelector('video');
-    video.srcObject = stream;
+
+    // Check if srcObject is supported
+    if ('srcObject' in video) {
+      video.srcObject = stream; // Use srcObject if available
+    } else {
+      // Fallback for older browsers
+      video.src = URL.createObjectURL(stream);
+    }
+
     isCameraActive.value = true;
   } catch (error) {
     console.error("Error accessing camera:", error);
-    alert("Error accessing camera.");
+    alert("Error accessing camera: " + error.message); // Show specific error message
   }
 };
 
-// Capture image and verify face using FaceMesh
+
 const captureImage = async () => {
+  alert("captureImage")
   debugger
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
@@ -213,7 +218,6 @@ const captureImage = async () => {
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = canvas.toDataURL('image/png');
 debugger
-  // Verify face using FaceMesh
   const img = new Image();
   img.src = imageData;
   img.onload = async () => {
@@ -232,7 +236,7 @@ debugger
         toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No face detected. Please retake the image.',
+          detail: 'No face  . Please retake the image.',
           life: 3000,
         });
       }
@@ -250,7 +254,6 @@ debugger
   closeCameraModal();
 };
 
-// Close camera modal
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
   isCameraActive.value = false;
@@ -263,7 +266,6 @@ const closeCameraModal = () => {
   }
 };
 
-// Validate Step 1
 const validateStep1 = (activateCallback) => {
   if (coordinates.value) {
     activateCallback('2');
@@ -272,13 +274,11 @@ const validateStep1 = (activateCallback) => {
   }
 };
 
-// Retake capture
 const retakeCapture = () => {
   capturedImage.value = null;
   openCameraModal();
 };
 
-// Validate Step 2
 const validateStep2 = (activateCallback) => {
   if (capturedImage.value) {
     activateCallback('3');
@@ -287,18 +287,17 @@ const validateStep2 = (activateCallback) => {
   }
 };
 
-// Reload page
 const reloadPage = () => {
   location.reload();
 };
 
-// Proceed to E-Sign
+
 const proceedToESign = () => {
   alert("Proceeding to E-Sign...");
 };
 
 onMounted(() => {
-  // Any additional setup can go here
+  
 });
 </script>
 
