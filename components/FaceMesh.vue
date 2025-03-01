@@ -1,198 +1,317 @@
 <template>
-    <div class="relative">
-      <video v-if="!isImageCaptured" ref="video" class="w-full h-auto" autoplay playsinline></video>
-      <canvas v-if="!isImageCaptured" ref="canvas" class="absolute top-0 left-0 w-full h-auto"></canvas>
-      <div v-if="!isImageCaptured" class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center  bg-black bg-opacity-50">
-        <p v-if="!isFaceDetected" class="text-white text-lg">Please position your face correctly in the frame.</p>
-        <p v-if="isFaceDetected && !isFaceStraight" class="text-white text-lg">Please look straight at the camera.</p>
-        <p v-if="isFaceDetected && isFaceTooClose" class="text-white text-lg">Please move slightly away from the camera.</p>
-        <p v-if="isFaceDetected && isFaceTooFar" class="text-white text-lg">Please move closer to the camera.</p>
-        <p v-if="isFaceDetected && isEyesClosed" class="text-white text-lg">Please keep your eyes open.</p>
-        <p v-if="isFaceDetected && isMultipleFaces" class="text-white text-lg">Only one face should be in the frame.</p>
+  <div class="card flex justify-center px-5 my-10">
+    <Stepper value="1" class="basis-[50rem]">
+      <StepList>
+        <Step value="1">Step 1</Step>
+        <Step value="2">Step 2</Step>
+        <Step value="3">Step 3</Step>
+      </StepList>
+      <StepPanels>
+        <!-- Step 1 Panel -->
+        <StepPanel v-slot="{ activateCallback }" value="1">
+          <div class="border-2 border-dashed">
+            <div class="flex flex-col h-full">
+              <div class="border-gray-200 rounded bg-gray-50 font-medium">
+                <div class="card px-5 py-10">
+                  <div class="gap-2">
+                    <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
+                    <div class="font-bold flex justify-center">How to do</div>
+                    <div class="font-bold my-2 flex items-center justify-between">
+                      <div>1. Enable GPS</div>
+                      <Button icon="pi pi-map-marker" aria-label="Save" @click="getLocation" />
+                    </div>
+                    <div class="font-bold my-2 flex items-center justify-between">
+                      <div>2. Allow Camera</div>
+                      <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex p-4 justify-end bg-gray-50">
+                <Button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                  @click="validateStep1(activateCallback)" />
+              </div>
+            </div>
+          </div>
+        </StepPanel>
+
+        <!-- Step 2 Panel -->
+        <StepPanel v-slot="{ activateCallback }" value="2">
+          <div class="border-2 border-dashed">
+            <div class="flex flex-col h-full">
+              <div class="border-gray-200 rounded bg-gray-50 font-medium">
+                <div class="card py-10">
+                  <div class="gap-2">
+                    <div v-if="coordinates" class="mt-4 px-5">
+                      <div class="font-bold my-2">{{ clientName }},</div>
+                      <div class="">Your Location is <span class="font-semibold" v-if="address">{{ address }}</span></div>
+                    </div>
+                    <div v-else class="mt-4 text-red-500">
+                      <p>Please allow GPS access to get your location.</p>
+                      <Button label="Reload" @click="reloadPage" />
+                    </div>
+                    <div class="font-bold my-2 px-5" v-if="!capturedImage">
+                      <Button label="Capture Image" @click="openCameraModal" class="w-full" />
+                    </div>
+                    <div v-if="capturedImage" class="mt-4">
+                      <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+                      <div class="flex justify-center mt-2 px-5">
+                        <Button label="Retake" @click="retakeCapture" class="w-full" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex p-4 justify-between bg-gray-50">
+                <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('1')" />
+                <Button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                  @click="validateStep2(activateCallback)" />
+              </div>
+            </div>
+          </div>
+        </StepPanel>
+
+        <!-- Step 3 Panel -->
+        <StepPanel v-slot="{ activateCallback }" value="3">
+          <div class="border-2 border-dashed rounded-lg shadow-lg">
+            <div class="flex flex-col h-full">
+              <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
+                <div class="card flex flex-col items-center justify-center py-10 px-6">
+                  <h2 class="text-xl font-bold">Thank You, {{ clientName }}!</h2>
+                  <p class="text-lg text-gray-700 mt-2">Your IP verification is completed.</p>
+                  <div class="mt-4">
+                    <Button label="Proceed to E-Sign" @click="proceedToESign"
+                      class="bg-blue-600 text-white hover:bg-blue-700 transition duration-200" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 bg-gray-50">
+              <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback('2')" />
+            </div>
+          </div>
+        </StepPanel>
+      </StepPanels>
+    </Stepper>
+
+    <!-- Camera Modal -->
+    <Transition name="fade">
+      <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
+        <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
+          <h2 class="text-lg font-bold mb-4">Capture Image</h2>
+          <div class="flex-1">
+            <video ref="video" autoplay playsinline class="w-full h-full"></video>
+          </div>
+          <div class="flex justify-center mt-2">
+            <Button label="Capture Image" @click="captureImage" class="w-full" />
+          </div>
+        </div>
       </div>
-      <div v-if="isImageCaptured" class="mt-4">
-        <img :src="capturedImage" alt="Captured Image" class="w-full h-auto" />
-      </div>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref, onMounted } from 'vue';
-  import { FaceMesh, FACEMESH_TESSELATION } from '@mediapipe/face_mesh';
-  import { Camera } from '@mediapipe/camera_utils';
-  import { drawConnectors } from '@mediapipe/drawing_utils';
-  
-  const video = ref(null);
-  const canvas = ref(null);
-  const capturedImage = ref(null);
-  const isFaceDetected = ref(false);
-  const isImageCaptured = ref(false);
-  const isFaceStraight = ref(false);
-  const isFaceTooClose = ref(false);
-  const isFaceTooFar = ref(false);
-  const isEyesClosed = ref(false);
-  const isMultipleFaces = ref(false);
-  
-  let faceMesh;
-  
-  onMounted(() => {
-    faceMesh = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    </Transition>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import Button from 'primevue/button';
+import Stepper from 'primevue/stepper';
+import Step from 'primevue/step';
+import StepList from 'primevue/steplist';
+import StepPanel from 'primevue/steppanel';
+import { useRoute } from 'vue-router';
+import { FaceMesh } from '@mediapipe/face_mesh';
+import 'primeicons/primeicons.css';
+
+const route = useRoute();
+const clientName = ref(route.query.clientName || '');
+const clientCode = ref(route.query.clientCode || '');
+const coordinates = ref(null);
+const capturedImage = ref(null);
+const isCameraActive = ref(false);
+const isCameraModalOpen = ref(false);
+const address = ref(null);
+const toast = useToast();
+
+// Initialize Face Mesh
+const faceMesh = new FaceMesh({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+});
+
+faceMesh.setOptions({
+  maxNumFaces: 1,
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5,
+});
+
+// Get user location
+const getLocation = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      coordinates.value = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+      getAddressFromCoordinates(coordinates.value.latitude, coordinates.value.longitude);
+    }, (error) => {
+      console.error("Error getting location:", error);
+      alert("Please allow location access.");
     });
-  
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-  
-    faceMesh.onResults((results) => {
-      console.log('FaceMesh results:', results); // Debugging: Log results
-  
-      const ctx = canvas.value.getContext('2d');
-      const width = video.value.videoWidth;
-      const height = video.value.videoHeight;
-  
-      // Set canvas dimensions to match video feed
-      canvas.value.width = width;
-      canvas.value.height = height;
-  
-      ctx.clearRect(0, 0, width, height);
-  
-      if (results.multiFaceLandmarks) {
-        isFaceDetected.value = true; // Face detected
-  
-        // Check for multiple faces
-        if (results.multiFaceLandmarks.length > 1) {
-          isMultipleFaces.value = true;
-          return;
-        } else {
-          isMultipleFaces.value = false;
-        }
-  
-        const landmarks = results.multiFaceLandmarks[0];
-  
-        // Draw landmarks on the canvas
-        drawConnectors(ctx, landmarks, FACEMESH_TESSELATION, {
-          color: '#C0C0C0',
-          lineWidth: 1,
+  } else {
+    alert("Geolocation is not supported by this browser.");
+  }
+};
+
+// Get address from coordinates
+const getAddressFromCoordinates = async (lat, lon) => {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const data = await response.json();
+    if (data && data.display_name) {
+      address.value = data.display_name;
+    } else {
+      address.value = "Address not found.";
+    }
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    address.value = "Error fetching address.";
+  }
+};
+
+// Open camera modal
+const openCameraModal = async () => {
+  isCameraModalOpen.value = true;
+  await startCamera();
+};
+
+// Start camera
+const startCamera = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    const video = document.querySelector('video');
+    video.srcObject = stream;
+    isCameraActive.value = true;
+  } catch (error) {
+    console.error("Error accessing camera:", error);
+    alert("Error accessing camera.");
+  }
+};
+
+// Capture image and verify face
+const captureImage = () => {
+  const video = document.querySelector('video');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const context = canvas.getContext('2d');
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const imageData = canvas.toDataURL('image/png');
+
+  // Verify face using Face Mesh
+  const img = new Image();
+  img.src = imageData;
+  img.onload = () => {
+    faceMesh.send({ image: img }).then((results) => {
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        capturedImage.value = imageData;
+        toast.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Face verification successful!',
+          life: 3000,
         });
-  
-        landmarks.forEach((landmark) => {
-          const x = landmark.x * width;
-          const y = landmark.y * height;
-          ctx.beginPath();
-          ctx.arc(x, y, 2, 0, 2 * Math.PI);
-          ctx.fillStyle = 'red';
-          ctx.fill();
-        });
-  
-        // Check face alignment (looking straight)
-        const noseTip = landmarks[1]; // Nose tip landmark
-        const leftEye = landmarks[33]; // Left eye landmark
-        const rightEye = landmarks[263]; // Right eye landmark
-        const chin = landmarks[152]; // Chin landmark
-  
-        // Calculate face angle using nose tip and chin
-        const faceAngle = Math.atan2(chin.y - noseTip.y, chin.x - noseTip.x) * (180 / Math.PI);
-  
-        // Adjust threshold for face alignment (more lenient)
-        if (Math.abs(faceAngle) > 15) { // Increased threshold from 10 to 15
-          isFaceStraight.value = false;
-        } else {
-          isFaceStraight.value = true;
-        }
-  
-        // Check face distance (too close or too far)
-        const faceWidth = Math.abs(leftEye.x - rightEye.x) * width;
-        if (faceWidth > 300) {
-          isFaceTooClose.value = true;
-          isFaceTooFar.value = false;
-        } else if (faceWidth < 150) {
-          isFaceTooFar.value = true;
-          isFaceTooClose.value = false;
-        } else {
-          isFaceTooClose.value = false;
-          isFaceTooFar.value = false;
-        }
-  
-        // Check if eyes are closed
-        const leftEyeTop = landmarks[159]; // Top of left eye
-        const leftEyeBottom = landmarks[145]; // Bottom of left eye
-        const rightEyeTop = landmarks[386]; // Top of right eye
-        const rightEyeBottom = landmarks[374]; // Bottom of right eye
-  
-        const leftEyeHeight = Math.abs(leftEyeTop.y - leftEyeBottom.y);
-        const rightEyeHeight = Math.abs(rightEyeTop.y - rightEyeBottom.y);
-  
-        if (leftEyeHeight < 0.02 || rightEyeHeight < 0.02) {
-          isEyesClosed.value = true;
-        } else {
-          isEyesClosed.value = false;
-        }
-  
-        // Log conditions for debugging
-        console.log({
-          isFaceStraight: isFaceStraight.value,
-          isFaceTooClose: isFaceTooClose.value,
-          isFaceTooFar: isFaceTooFar.value,
-          isEyesClosed: isEyesClosed.value,
-          isMultipleFaces: isMultipleFaces.value,
-        });
-  
-        // Capture image only if all conditions are met
-        if (
-          
-          !isFaceTooClose.value &&
-          !isFaceTooFar.value &&
-          !isEyesClosed.value &&
-          !isMultipleFaces.value
-        ) {
-          console.log('All conditions met. Capturing image...'); // Debugging
-          captureImage();
-        }
       } else {
-        isFaceDetected.value = false; // No face detected
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No face detected. Please retake the image.',
+          life: 3000,
+        });
       }
     });
-  
-    const camera = new Camera(video.value, {
-      onFrame: async () => {
-        await faceMesh.send({ image: video.value });
-      },
-      width: 640,
-      height: 480,
-    });
-  
-    camera.start();
-  });
-  
-  const captureImage = () => {
-    const width = video.value.videoWidth;
-    const height = video.value.videoHeight;
-  
-    // Create a temporary canvas to capture the image
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = width;
-    tempCanvas.height = height;
-    const tempCtx = tempCanvas.getContext('2d');
-  
-    // Draw the current video frame onto the temporary canvas
-    tempCtx.drawImage(video.value, 0, 0, width, height);
-  
-    // Convert the canvas to a data URL and set it as the captured image
-    capturedImage.value = tempCanvas.toDataURL('image/png');
-    isImageCaptured.value = true; // Stop showing live camera feed
   };
-  </script>
-  
-  <style scoped>
-  /* Add custom styles if needed */
-  .relative {
-    position: relative;
+
+  closeCameraModal();
+};
+
+// Close camera modal
+const closeCameraModal = () => {
+  isCameraModalOpen.value = false;
+  isCameraActive.value = false;
+  const video = document.querySelector('video');
+  if (video.srcObject) {
+    const stream = video.srcObject;
+    const tracks = stream.getTracks();
+    tracks.forEach(track => track.stop());
+    video.srcObject = null;
   }
-  .absolute {
-    position: absolute;
+};
+
+// Validate Step 1
+const validateStep1 = (activateCallback) => {
+  if (coordinates.value) {
+    activateCallback('2');
+  } else {
+    alert("Please grant location access before proceeding.");
   }
-  </style>
+};
+
+// Retake capture
+const retakeCapture = () => {
+  capturedImage.value = null;
+  openCameraModal();
+};
+
+// Validate Step 2
+const validateStep2 = (activateCallback) => {
+  if (capturedImage.value) {
+    activateCallback('3');
+  } else {
+    alert("Please capture an image before proceeding.");
+  }
+};
+
+// Reload page
+const reloadPage = () => {
+  location.reload();
+};
+
+// Proceed to E-Sign
+const proceedToESign = () => {
+  alert("Proceeding to E-Sign...");
+};
+
+onMounted(() => {
+  // Any additional setup can go here
+});
+</script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.bg-white {
+  background-color: white;
+}
+</style>
