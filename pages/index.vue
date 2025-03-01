@@ -56,7 +56,7 @@
                       <Button label="Capture Image" @click="openCameraModal" class="w-full" />
                     </div>
                     <div v-if="capturedImage" class="mt-4">
-                      <img :src="capturedImage" alt="Captured Image" class="w-full h-[400px] px-5" />
+                      <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
                       <div class="flex justify-center mt-2 px-5">
                         <Button label="Retake" @click="retakeCapture" class="w-full" />
                       </div>
@@ -99,7 +99,7 @@
     <!-- Camera Modal -->
     <Transition name="fade">
       <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
-        <div class="bg-white p-5 rounded-lg shadow-lg h-[90vh] w-[90vw] flex flex-col">
+        <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
           <h2 class="text-lg font-bold mb-4">Capture Image</h2>
           <div class="flex-1">
             <video ref="video" autoplay playsinline class="w-full h-full"></video>
