@@ -51,7 +51,7 @@
                       <Button label="Reload" @click="reloadPage" />
                     </div>
                     <div class="font-bold my-2 px-5" v-if="!capturedImage">
-                      <Button label="Capture Image"  class="w-full" @click="openCameraModal"/>
+                      <Button label="Capture Image" class="w-full" @click="openCameraModal" />
                     </div>
                     <div v-if="capturedImage" class="mt-4">
                       <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
@@ -156,18 +156,32 @@ if (typeof window !== 'undefined') {
 
 const getLocation = () => {
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      coordinates.value = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      };
-      getAddressFromCoordinates(coordinates.value.latitude, coordinates.value.longitude);
-    }, (error) => {
-      console.error("Error getting location:", error);
-      alert("Please allow location access.");
-    });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        coordinates.value = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        getAddressFromCoordinates(coordinates.value.latitude, coordinates.value.longitude);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Please allow location access to proceed.',
+          life: 3000,
+        });
+      },
+      { timeout: 10000 } // 10 seconds timeout
+    );
   } else {
-    alert("Geolocation is not supported by this browser.");
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Geolocation is not supported by this browser.',
+      life: 3000,
+    });
   }
 };
 
@@ -195,16 +209,33 @@ const startCamera = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
     const video = document.querySelector('video');
-    video.srcObject = stream;
-    isCameraActive.value = true;
+    if (video) {
+      video.srcObject = stream;
+      isCameraActive.value = true;
+    }
   } catch (error) {
     console.error("Error accessing camera:", error);
-    alert("Error accessing camera.");
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Please allow camera access to proceed.',
+      life: 3000,
+    });
   }
 };
 
 const captureImage = async () => {
   const video = document.querySelector('video');
+  if (!video || !video.videoWidth || !video.videoHeight) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Camera is not ready. Please try again.',
+      life: 3000,
+    });
+    return;
+  }
+
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -254,7 +285,7 @@ const closeCameraModal = () => {
   isCameraModalOpen.value = false;
   isCameraActive.value = false;
   const video = document.querySelector('video');
-  if (video.srcObject) {
+  if (video && video.srcObject) {
     const stream = video.srcObject;
     const tracks = stream.getTracks();
     tracks.forEach(track => track.stop());
@@ -266,7 +297,12 @@ const validateStep1 = (activateCallback) => {
   if (coordinates.value) {
     activateCallback('2');
   } else {
-    alert("Please grant location access before proceeding.");
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Please grant location access before proceeding.',
+      life: 3000,
+    });
   }
 };
 
@@ -279,7 +315,12 @@ const validateStep2 = (activateCallback) => {
   if (capturedImage.value) {
     activateCallback('3');
   } else {
-    alert("Please capture an image before proceeding.");
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Please capture an image before proceeding.',
+      life: 3000,
+    });
   }
 };
 
