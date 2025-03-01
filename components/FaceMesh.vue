@@ -108,6 +108,9 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Toast Component -->
+    <Toast />
   </div>
 </template>
 
@@ -121,6 +124,7 @@ import StepList from 'primevue/steplist';
 import StepPanel from 'primevue/steppanel';
 import { useRoute } from 'vue-router';
 import { FaceMesh } from '@mediapipe/face_mesh';
+import Toast from 'primevue/toast';
 import 'primeicons/primeicons.css';
 
 const route = useRoute();
@@ -198,8 +202,8 @@ const startCamera = async () => {
   }
 };
 
-// Capture image and verify face
-const captureImage = () => {
+// Capture image and verify face using FaceMesh
+const captureImage = async () => {
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
@@ -208,11 +212,12 @@ const captureImage = () => {
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = canvas.toDataURL('image/png');
 
-  // Verify face using Face Mesh
+  // Verify face using FaceMesh
   const img = new Image();
   img.src = imageData;
-  img.onload = () => {
-    faceMesh.send({ image: img }).then((results) => {
+  img.onload = async () => {
+    try {
+      const results = await faceMesh.send({ image: img });
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         capturedImage.value = imageData;
         toast.add({
@@ -229,7 +234,15 @@ const captureImage = () => {
           life: 3000,
         });
       }
-    });
+    } catch (error) {
+      console.error("Error verifying face:", error);
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'An error occurred while verifying the face. Please try again.',
+        life: 3000,
+      });
+    }
   };
 
   closeCameraModal();
