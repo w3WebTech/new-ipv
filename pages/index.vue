@@ -96,7 +96,8 @@
 
     <!-- Camera Modal -->
     <Transition name="fade">
-      <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
+      <div v-if="isCameraModalOpen"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
         <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
           <h2 class="text-lg font-bold mb-4">Capture Image</h2>
           <div class="flex-1">
@@ -242,14 +243,33 @@ const captureImage = async () => {
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = canvas.toDataURL('image/png');
+
   const img = new Image();
   img.src = imageData;
   img.onload = async () => {
-    try {
-      if (!faceMesh) {
-        throw new Error("FaceMesh is not initialized.");
-      }
+    // Check if the image is valid
+    if (!img.complete || img.naturalWidth === 0) {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Invalid image. Please retake the photo.',
+        life: 3000,
+      });
+      return;
+    }
 
+    // Ensure FaceMesh is initialized
+    if (!faceMesh) {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'FaceMesh is not initialized. Please refresh the page.',
+        life: 3000,
+      });
+      return;
+    }
+
+    try {
       const results = await faceMesh.send({ image: img });
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         capturedImage.value = imageData;
