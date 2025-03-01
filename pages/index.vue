@@ -44,16 +44,14 @@
                   <div class="gap-2">
                     <div v-if="coordinates" class="mt-4 px-5">
                       <div class="font-bold my-2">{{ clientName }},</div>
-                      <div class="">Your Location is  <span class="font-semibold" v-if="address">{{ address }}</span> </div>
-                    
-                     
+                      <div>Your Location is <span class="font-semibold" v-if="address">{{ address }}</span></div>
                     </div>
                     <div v-else class="mt-4 text-red-500">
                       <p>Please allow GPS access to get your location.</p>
                       <Button label="Reload" @click="reloadPage" />
                     </div>
                     <div class="font-bold my-2 px-5" v-if="!capturedImage">
-                      <Button label="Capture Image" @click="openCameraModal" class="w-full" />
+                      <Button label="Capture Image"  class="w-full" @click="openCameraModal"/>
                     </div>
                     <div v-if="capturedImage" class="mt-4">
                       <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
@@ -79,7 +77,7 @@
             <div class="flex flex-col h-full">
               <div class="border-gray-200 rounded bg-gray-50 flex-auto flex justify-center items-center font-medium">
                 <div class="card flex flex-col items-center justify-center py-10 px-6">
-                  <h2 class="text-xl font-bold ">Thank You, {{ clientName }}!</h2>
+                  <h2 class="text-xl font-bold">Thank You, {{ clientName }}!</h2>
                   <p class="text-lg text-gray-700 mt-2">Your IP verification is completed.</p>
                   <div class="mt-4">
                     <Button label="Proceed to E-Sign" @click="proceedToESign"
@@ -107,12 +105,11 @@
           <div class="flex justify-center mt-2">
             <Button label="Capture Image" @click="captureImage" class="w-full" />
           </div>
-          <!-- <div class="flex justify-end mt-4">
-            <Button label="Close" @click="closeCameraModal" class="p-button-secondary" />
-          </div> -->
         </div>
       </div>
     </Transition>
+
+    <Toast />
   </div>
 </template>
 
@@ -125,8 +122,8 @@ import Step from 'primevue/step';
 import StepList from 'primevue/steplist';
 import StepPanel from 'primevue/steppanel';
 import { useRoute } from 'vue-router';
-
-import 'primeicons/primeicons.css'
+import Toast from 'primevue/toast';
+import 'primeicons/primeicons.css';
 
 const route = useRoute();
 const clientName = ref(route.query.clientName || '');
@@ -135,8 +132,27 @@ const coordinates = ref(null);
 const capturedImage = ref(null);
 const isCameraActive = ref(false);
 const isCameraModalOpen = ref(false);
-const address = ref(null); // To store the address
+const address = ref(null);
 const toast = useToast();
+
+let faceMesh = null;
+
+// Initialize Face Mesh only in the browser
+if (typeof window !== 'undefined') {
+  import('@mediapipe/face_mesh').then((module) => {
+    const { FaceMesh } = module;
+    faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+  });
+}
 
 const getLocation = () => {
   if (navigator.geolocation) {
@@ -145,7 +161,6 @@ const getLocation = () => {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       };
-      // Call the function to get the address
       getAddressFromCoordinates(coordinates.value.latitude, coordinates.value.longitude);
     }, (error) => {
       console.error("Error getting location:", error);
@@ -156,13 +171,12 @@ const getLocation = () => {
   }
 };
 
-// Function to get address from latitude and longitude
 const getAddressFromCoordinates = async (lat, lon) => {
   try {
     const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
     const data = await response.json();
     if (data && data.display_name) {
-      address.value = data.display_name; // Set the address
+      address.value = data.display_name;
     } else {
       address.value = "Address not found.";
     }
@@ -181,31 +195,59 @@ const startCamera = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
     const video = document.querySelector('video');
-
-    // Check if srcObject is supported
-    if ('srcObject' in video) {
-      video.srcObject = stream; // Use srcObject if available
-    } else {
-      // Fallback for older browsers
-      video.src = URL.createObjectURL(stream);
-    }
-
+    video.srcObject = stream;
     isCameraActive.value = true;
   } catch (error) {
     console.error("Error accessing camera:", error);
-    alert("Error accessing camera: " + error.message); // Show specific error message
+    alert("Error accessing camera.");
   }
 };
 
-const captureImage = () => {
+const captureImage = async () => {
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
-  capturedImage.value = canvas.toDataURL('image/png');
-  closeCameraModal(); // Close the modal after capturing the image
+  const imageData = canvas.toDataURL('image/png');
+  const img = new Image();
+  img.src = imageData;
+  img.onload = async () => {
+    try {
+      if (!faceMesh) {
+        throw new Error("FaceMesh is not initialized.");
+      }
+
+      const results = await faceMesh.send({ image: img });
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        capturedImage.value = imageData;
+        toast.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Face verification successful!',
+          life: 3000,
+        });
+      } else {
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No face detected. Please retake the image.',
+          life: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error verifying face:", error);
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'An error occurred while verifying the face. Please try again.',
+        life: 3000,
+      });
+    }
+  };
+
+  closeCameraModal();
 };
 
 const closeCameraModal = () => {
@@ -222,23 +264,27 @@ const closeCameraModal = () => {
 
 const validateStep1 = (activateCallback) => {
   if (coordinates.value) {
-    activateCallback('2'); // Move to Step 2
+    activateCallback('2');
   } else {
     alert("Please grant location access before proceeding.");
   }
 };
 
 const retakeCapture = () => {
-  capturedImage.value = null; // Clear the captured image
-  openCameraModal(); // Open the camera modal again
+  capturedImage.value = null;
+  openCameraModal();
 };
 
 const validateStep2 = (activateCallback) => {
-  activateCallback('3'); // Move to Step 3
+  if (capturedImage.value) {
+    activateCallback('3');
+  } else {
+    alert("Please capture an image before proceeding.");
+  }
 };
 
 const reloadPage = () => {
-  location.reload(); // Reload the current page
+  location.reload();
 };
 
 const proceedToESign = () => {
@@ -246,7 +292,7 @@ const proceedToESign = () => {
 };
 
 onMounted(() => {
-  // Any additional setup can go here
+  // Any additional setup can be done here
 });
 </script>
 
@@ -257,25 +303,24 @@ onMounted(() => {
 }
 
 .fade-enter,
-.fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-leave-to {
   opacity: 0;
 }
 
-/* Full-screen modal styling */
 .fixed {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Ensure it's on top of other elements */
+  z-index: 1000;
 }
 
 .bg-white {
-  background-color: white; /* Ensure modal content has a white background */
+  background-color: white;
 }
 </style>
