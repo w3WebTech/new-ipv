@@ -56,7 +56,7 @@
                       <Button label="Capture Image" @click="openCameraModal" class="w-full" />
                     </div>
                     <div v-if="capturedImage" class="mt-4">
-                      <img :src="capturedImage" alt="Captured Image" class="w-full h-[200px] px-5" />
+                      <img :src="capturedImage" alt="Captured Image" class="w-full h-[400px] px-5" />
                       <div class="flex justify-center mt-2 px-5">
                         <Button label="Retake" @click="retakeCapture" class="w-full" />
                       </div>
@@ -107,9 +107,9 @@
           <div class="flex justify-center mt-2">
             <Button label="Capture Image" @click="captureImage" class="w-full" />
           </div>
-          <div class="flex justify-end mt-4">
+          <!-- <div class="flex justify-end mt-4">
             <Button label="Close" @click="closeCameraModal" class="p-button-secondary" />
-          </div>
+          </div> -->
         </div>
       </div>
     </Transition>
