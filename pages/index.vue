@@ -382,7 +382,7 @@ const validateStep1 = (activateCallback) => {
   }
 };
 
-if (capturedImage.value && errorMessage.value === 'Face detected, but it seems to be partial. Please ensure your whole face is visible.') {
+if (capturedImage.value ) {
   activateCallback('3');
 } else {
   toast.add({
