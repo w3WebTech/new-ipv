@@ -138,11 +138,9 @@ const toast = useToast();
 
 let faceMesh = null;
 
-
 if (typeof window !== 'undefined') {
   import('@mediapipe/face_mesh').then((module) => {
     const { FaceMesh } = module;
-    debugger
     faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
@@ -237,25 +235,45 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
-  debugger
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth; // Set canvas size to video size
+  canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const context = canvas.getContext('2d');
-  context.drawImage(video, 0, 0, canvas.width, canvas.height); // Draw the video frame onto the canvas
-  
-  // Now you can send the canvas directly to FaceMesh
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
   try {
     const results = await faceMesh.send({ image: canvas });
-    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      // Face detected
+    console.log("FaceMesh results:", results); // Log the results for debugging
+
+    if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      // Process landmarks
+      capturedImage.value = canvas.toDataURL('image/png'); // Save captured image to state
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Face verification successful!',
+        life: 3000,
+      });
     } else {
-      // No face detected
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No face detected. Please retake the image.',
+        life: 3000,
+      });
     }
   } catch (error) {
     console.error("Error verifying face:", error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'An error occurred while verifying the face. Please try again.',
+      life: 3000,
+    });
   }
+
+  closeCameraModal();
 };
 
 
