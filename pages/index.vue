@@ -3,8 +3,8 @@
     <Stepper value="1" class="basis-[50rem]">
       <StepList>
         <Step value="1">Step 1</Step>
-        <Step value="2">Step 2</Step>
-        <Step value="3">Step 3</Step>
+        <Step value="2" >Step 2</Step>
+        <Step value="3" >Step 3</Step>
       </StepList>
       <StepPanels>
         <!-- Step 1 Panel -->
@@ -101,7 +101,7 @@
     </Stepper>
 
     <!-- Camera Modal -->
-    <Transition name="fade">
+    <Transition name="fade ">
       <div v-if="isCameraModalOpen"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen ">
         <div class="bg-white p-5 rounded-lg shadow-lg h-[90vh] w-[90vw] flex flex-col">
@@ -272,7 +272,7 @@ const onFaceMeshResults = (results) => {
         life: 3000,
       });
     } else {
-      errorMessage.value = 'No face detected. Please retake the image.';
+      errorMessage.value = 'No face detected or Your face not clear. Please retake the image.';
       toast.add({
         severity: 'error',
         summary: 'Error',
@@ -359,5 +359,8 @@ const reloadPage = () => {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
+}
+.p-step-number {
+  z-index: none !important;
 }
 </style>
