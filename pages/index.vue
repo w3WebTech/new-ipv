@@ -1,15 +1,12 @@
 <template>
-  <div class="card flex justify-center px-5 my-5">
-    <Stepper value="1" class="basis-[50rem]">
-      <div class="font-bold text-lg text-gray-400 flex justify-center">
-       In person Verfication
+  <div class="card flex justify-center ">
+  <Stepper value="1" class="basis-[50rem]  ">
+      <div class="font-bold text-lg text-white py-5 flex  bg-[#10B981]">
+      <img src="public/logo-2.jpeg" alt="" height="50" width="50" class="mx-5 rounded ">
+      <div class="px-5 my-3"> In person Verfication</div> 
       </div>
-      <!-- <StepList>
-        <Step value="1" class="relative">Step 1</Step>
-        <Step value="2" class="relative">Step 2</Step>
-        <Step value="3"  class="relative">Step 3</Step>
-      </StepList> -->
-      <StepPanels>
+  
+      <StepPanels class="px-5 my-5">
         <!-- Step 1 Panel -->
         <StepPanel v-slot="{ activateCallback }" value="1">
           <div class="border-2 border-dashed">
