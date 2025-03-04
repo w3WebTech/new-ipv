@@ -262,9 +262,14 @@ const captureImage = async () => {
 
 const onFaceMeshResults = (results) => {
   isFaceProcessing.value = false; // Hide loader
-  if (results && results.multiFaceLandmarks) {
-    if (results.multiFaceLandmarks.length > 0) {
-      closeCameraModal();
+
+  // Check if face landmarks exist and are not empty
+  if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+    const landmarks = results.multiFaceLandmarks[0]; // Assuming we are dealing with the first detected face
+    
+    // You can add more checks here if needed to validate that the landmarks are clear enough
+    if (landmarks && landmarks.length > 0) {
+      closeCameraModal(); // Close the camera modal
       toast.add({
         severity: 'success',
         summary: 'Success',
@@ -272,26 +277,27 @@ const onFaceMeshResults = (results) => {
         life: 3000,
       });
     } else {
-      errorMessage.value = 'No face detected or Your face not clear. Please retake the image.';
+      errorMessage.value = 'No clear face detected. Please ensure your face is visible and retake the image.';
       toast.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'No face detected or Your face not clear. Please retake the image.',
+        detail: 'No clear face detected. Please ensure your face is visible and retake the image.',
         life: 3000,
       });
       closeCameraModal();
     }
   } else {
-    errorMessage.value = 'Error processing the image. Please retake the image.';
-    closeCameraModal();
+    errorMessage.value = 'No face detected. Please retake the image.';
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'An error occurred while processing the image.',
+      detail: 'No face detected. Please retake the image.',
       life: 3000,
     });
+    closeCameraModal();
   }
 };
+
 
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
