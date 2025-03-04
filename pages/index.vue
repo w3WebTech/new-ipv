@@ -226,6 +226,7 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
+  debugger
   const video = document.querySelector('video');
   if (!video || !video.videoWidth || !video.videoHeight) {
     toast.add({
@@ -236,7 +237,7 @@ const captureImage = async () => {
     });
     return;
   }
-
+debugger
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -246,9 +247,10 @@ const captureImage = async () => {
 
   const img = new Image();
   img.src = imageData;
-
+debugger
   img.onload = async () => {
     // Check if the image is valid
+    debugger
     if (!img.complete || img.naturalWidth === 0) {
       toast.add({
         severity: 'error',
@@ -271,6 +273,7 @@ const captureImage = async () => {
     }
 
     try {
+      debugger
       const results = await faceMesh.send({ image: img });
 
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
