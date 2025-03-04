@@ -148,7 +148,49 @@ const errorMessage = ref('');
 const isFaceProcessing = ref(false);
 
 const getLocation = () => {
-  // Implementation of geolocation as before
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        coordinates.value = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        getAddressFromCoordinates(coordinates.value.latitude, coordinates.value.longitude);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Please allow location access to proceed.',
+          life: 3000,
+        });
+      },
+      { timeout: 10000 } // 10 seconds timeout
+    );
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Geolocation is not supported by this browser.',
+      life: 3000,
+    });
+  }
+};
+
+const getAddressFromCoordinates = async (lat, lon) => {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const data = await response.json();
+    if (data && data.display_name) {
+      address.value = data.display_name;
+    } else {
+      address.value = 'Address not found.';
+    }
+  } catch (error) {
+    console.error('Error fetching address:', error);
+    address.value = 'Error fetching address.';
+  }
 };
 
 const openCameraModal = async () => {
@@ -157,7 +199,23 @@ const openCameraModal = async () => {
 };
 
 const startCamera = async () => {
-  // Start camera stream implementation as before
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    const video = document.querySelector('video');
+    if (video) {
+      video.srcObject = stream;
+      video.play();
+      console.log('Camera started:', stream);
+    }
+  } catch (error) {
+    console.error('Error accessing camera:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Please allow camera access to proceed.',
+      life: 3000,
+    });
+  }
 };
 
 onMounted(async () => {
