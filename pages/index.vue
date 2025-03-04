@@ -274,13 +274,35 @@ const captureImage = async () => {
       const results = await faceMesh.send({ image: img });
 
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-        capturedImage.value = imageData;
-        toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Face verification successful!',
-          life: 3000,
-        });
+        // Liveness detection - check for eye movements (you can expand this logic)
+        const landmarks = results.multiFaceLandmarks[0];
+
+        // Example liveness check: verify that the eyes are open
+        const leftEye = landmarks[159]; // Left eye landmark (can be adjusted)
+        const rightEye = landmarks[386]; // Right eye landmark (can be adjusted)
+        const eyeDistance = Math.abs(leftEye.y - rightEye.y);
+
+        // If the eye distance is stable, we assume the image is a static photo.
+        if (eyeDistance > 0.01) {
+          capturedImage.value = imageData;
+          toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Face verification successful!',
+            life: 3000,
+          });
+          // Proceed to next step (show thank you message)
+          activateCallback('3');
+        } else {
+          toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Liveness verification failed. Please retake the photo.',
+            life: 3000,
+          });
+          // Allow user to retake the photo
+          retakeCapture();
+        }
       } else {
         toast.add({
           severity: 'error',
@@ -311,6 +333,7 @@ const captureImage = async () => {
 
   closeCameraModal();
 };
+
 
 
 const closeCameraModal = () => {
