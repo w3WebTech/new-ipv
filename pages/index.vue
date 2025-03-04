@@ -282,7 +282,7 @@ console.log(img,"IMG")
 
     try {
       // Send the image to FaceMesh for analysis
-      const results = await faceMesh.send({ image: img });
+      const results = await faceMesh.send({ image: imageData });
 
       // Debug: Log results to inspect what was returned
       console.log('FaceMesh results:', results);
