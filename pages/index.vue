@@ -152,9 +152,16 @@ if (typeof window !== 'undefined') {
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
+
     console.log('FaceMesh initialized');
   }).catch((error) => {
     console.error('Error initializing FaceMesh:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'FaceMesh initialization failed. Please refresh the page.',
+      life: 3000,
+    });
   });
 }
 
@@ -177,7 +184,7 @@ const getLocation = () => {
           life: 3000,
         });
       },
-      { timeout: 10000 }
+      { timeout: 10000 } // 10 seconds timeout
     );
   } else {
     toast.add({
@@ -191,9 +198,7 @@ const getLocation = () => {
 
 const getAddressFromCoordinates = async (lat, lon) => {
   try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
-    );
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
     const data = await response.json();
     if (data && data.display_name) {
       address.value = data.display_name;
@@ -231,6 +236,7 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
+  debugger
   const video = document.querySelector('video');
   if (!video || !video.videoWidth || !video.videoHeight) {
     toast.add({
@@ -272,10 +278,10 @@ const captureImage = async () => {
       });
       return;
     }
-
+debugger
     try {
       const results = await faceMesh.send({ image: img });
-      console.log(results, results.multiFaceLandmarks, 'multiFaceLandmarks');
+      console.log('FaceMesh results:', results);
 
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
@@ -360,7 +366,7 @@ const validateStep1 = (activateCallback) => {
 
 const retakeCapture = () => {
   capturedImage.value = null;
-  openCameraModal();
+  isCameraModalOpen.value = true;
 };
 
 const validateStep2 = (activateCallback) => {
@@ -370,50 +376,32 @@ const validateStep2 = (activateCallback) => {
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Please capture an image before proceeding.',
+      detail: 'Please capture a face image before proceeding.',
       life: 3000,
     });
   }
 };
 
-const reloadPage = () => {
-  location.reload();
-};
-
 const proceedToESign = () => {
-  alert('Proceeding to E-Sign...');
+  // Logic to proceed to e-sign
+  toast.add({
+    severity: 'success',
+    summary: 'Proceeding to E-Sign',
+    detail: 'You are now ready to proceed.',
+    life: 3000,
+  });
 };
 
-onMounted(() => {
-  // Any additional setup can be done here
-});
+const reloadPage = () => {
+  window.location.reload();
+};
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
+.fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
-
-.fade-enter,
-.fade-leave-to {
+.fade-enter, .fade-leave-to {
   opacity: 0;
-}
-
-.fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.bg-white {
-  background-color: white;
 }
 </style>
