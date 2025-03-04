@@ -264,6 +264,90 @@ const captureImage = async () => {
   }
 };
 
+// const onFaceMeshResults = (results) => {
+//   isFaceProcessing.value = false; // Hide loader
+
+//   // Check if the face landmarks exist and are not empty
+//   if (results && results.multiFaceLandmarks) {
+//     const faceCount = results.multiFaceLandmarks.length;
+
+//     // Case 1: No face detected
+//     if (faceCount === 0) {
+//       errorMessage.value = 'No face detected. Please retake the image.';
+//       toast.add({
+//         severity: 'error',
+//         summary: 'Error',
+//         detail: 'No face detected. Please retake the image.',
+//         life: 3000,
+//       });
+//       closeCameraModal();
+//     } 
+//     // Case 2: Multiple faces detected
+//     else if (faceCount > 1) {
+//       errorMessage.value = 'Multiple faces detected. Please ensure only one face is visible.';
+//       toast.add({
+//         severity: 'error',
+//         summary: 'Error',
+//         detail: 'Multiple faces detected. Please ensure only one face is visible.',
+//         life: 3000,
+//       });
+//       closeCameraModal();
+//     } 
+//     // Case 3: Face detected, but not fully visible (partial face)
+//     else {
+//       const landmarks = results.multiFaceLandmarks[0]; // Assuming we are dealing with the first detected face
+
+//       // Example: Checking if the landmarks count is sufficiently close to 468
+//       if (landmarks && landmarks.length < 468) { // Check for full face landmarks
+//         errorMessage.value = 'Face detected, but it seems to be partial. Please ensure your whole face is visible.';
+//         toast.add({
+//           severity: 'error',
+//           summary: 'Error',
+//           detail: 'Face detected, but it seems to be partial. Please ensure your whole face is visible.',
+//           life: 3000,
+//         });
+//         closeCameraModal();
+//       } 
+//       // Case 4: Full face detected (valid single face)
+//       else {
+//         // Here we can check if the face is properly oriented
+//         const visibleLandmarks = landmarks.filter((point) => {
+//           return point.x > 0 && point.x < 1 && point.y > 0 && point.y < 1;  // Ensure the points are within the image's boundaries
+//         });
+
+//         if (visibleLandmarks.length < 468) { // If visible landmarks are less than 468, the face might be partially visible
+//           errorMessage.value = 'Face detected, but it seems to be partial. Please ensure your whole face is visible.';
+//           toast.add({
+//             severity: 'error',
+//             summary: 'Error',
+//             detail: 'Face detected, but it seems to be partial. Please ensure your whole face is visible.',
+//             life: 3000,
+//           });
+//           closeCameraModal();
+//         } else {
+//           // If full face is detected and visible
+//           closeCameraModal();
+//           toast.add({
+//             severity: 'success',
+//             summary: 'Success',
+//             detail: 'Face detected successfully!',
+//             life: 3000,
+//           });
+//         }
+//       }
+//     }
+//   } else {
+//     errorMessage.value = 'Error processing the image. Please retake the image.';
+//     toast.add({
+//       severity: 'error',
+//       summary: 'Error',
+//       detail: 'Error processing the image. Please retake the image.',
+//       life: 3000,
+//     });
+//     closeCameraModal();
+//   }
+// };
+
 const onFaceMeshResults = (results) => {
   isFaceProcessing.value = false; // Hide loader
 
@@ -293,12 +377,23 @@ const onFaceMeshResults = (results) => {
       });
       closeCameraModal();
     } 
-    // Case 3: Face detected, but not fully visible (partial face)
+    // Case 3: Only one face detected
     else {
       const landmarks = results.multiFaceLandmarks[0]; // Assuming we are dealing with the first detected face
 
-      // Example: Checking if the landmarks count is sufficiently close to 468
-      if (landmarks && landmarks.length < 468) { // Check for full face landmarks
+      // Case 3.1: No landmarks detected or landmarks are empty
+      if (!landmarks || landmarks.length === 0) {
+        errorMessage.value = 'Error detecting the face. Please ensure your face is visible and try again.';
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error detecting the face. Please ensure your face is visible and try again.',
+          life: 3000,
+        });
+        closeCameraModal();
+      } 
+      // Case 3.2: Face detected, but not fully visible (landmarks count < 468)
+      else if (landmarks.length < 468) { 
         errorMessage.value = 'Face detected, but it seems to be partial. Please ensure your whole face is visible.';
         toast.add({
           severity: 'error',
@@ -308,14 +403,15 @@ const onFaceMeshResults = (results) => {
         });
         closeCameraModal();
       } 
-      // Case 4: Full face detected (valid single face)
+      // Case 3.3: Full face detected (valid single face)
       else {
-        // Here we can check if the face is properly oriented
+        // Check for visible landmarks (inside image boundaries)
         const visibleLandmarks = landmarks.filter((point) => {
           return point.x > 0 && point.x < 1 && point.y > 0 && point.y < 1;  // Ensure the points are within the image's boundaries
         });
 
-        if (visibleLandmarks.length < 468) { // If visible landmarks are less than 468, the face might be partially visible
+        // If the visible landmarks are less than 468, treat the face as partial
+        if (visibleLandmarks.length < 468) {
           errorMessage.value = 'Face detected, but it seems to be partial. Please ensure your whole face is visible.';
           toast.add({
             severity: 'error',
@@ -347,7 +443,6 @@ const onFaceMeshResults = (results) => {
     closeCameraModal();
   }
 };
-
 
 
 const closeCameraModal = () => {
