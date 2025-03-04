@@ -244,19 +244,20 @@ const captureImage = async () => {
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   try {
-    const results = await faceMesh.send({ image: canvas });
-    console.log("FaceMesh results:", results); // Log the results for debugging
+    // Convert canvas to ImageData
+    const context = canvas.getContext('2d');
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    console.log('Sending ImageData to FaceMesh:', imageData);
+
+    const results = await faceMesh.send({ image: imageData });
+
+    console.log('FaceMesh results:', results);
 
     if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      // Process landmarks
-      capturedImage.value = canvas.toDataURL('image/png'); // Save captured image to state
-      toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Face verification successful!',
-        life: 3000,
-      });
+     alert("hi")
     } else {
+      console.log('No face detected or results are empty.');
       toast.add({
         severity: 'error',
         summary: 'Error',
@@ -265,7 +266,7 @@ const captureImage = async () => {
       });
     }
   } catch (error) {
-    console.error("Error verifying face:", error);
+    console.error('Error verifying face:', error);
     toast.add({
       severity: 'error',
       summary: 'Error',
