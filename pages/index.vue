@@ -56,7 +56,7 @@
                     <div v-if="capturedImage" class="mt-4">
                       <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
                       <div v-if="capturedImage && errorMessage" class="mt-2 text-red-500">
-                        <p>{{ errorMessage }}</p>
+                        <p class="px-5">{{ errorMessage }}</p>
                       </div>
                       <div v-if="capturedImage && isFaceProcessing" class="flex justify-center mt-2">
                         <p class="text-gray-500">Please wait, processing...</p>
@@ -276,7 +276,7 @@ const onFaceMeshResults = (results) => {
       toast.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'No face detected. Please retake the image.',
+        detail: 'No face detected or Your face not clear. Please retake the image.',
         life: 3000,
       });
       closeCameraModal();
@@ -311,7 +311,16 @@ const retakeCapture = () => {
 };
 
 const validateStep1 = (activateCallback) => {
-  // Validate location access and move to next step
+  if (coordinates.value) {
+    activateCallback('2');
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Please grant location access before proceeding.',
+      life: 3000,
+    });
+  }
 };
 
 const validateStep2 = (activateCallback) => {
