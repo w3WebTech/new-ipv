@@ -2,9 +2,9 @@
   <div class="card flex justify-center px-5 my-10">
     <Stepper value="1" class="basis-[50rem]">
       <StepList>
-        <Step value="1">Step 1</Step>
-        <Step value="2" >Step 2</Step>
-        <Step value="3" >Step 3</Step>
+        <Step value="1" class="relative">Step 1</Step>
+        <Step value="2" class="relative">Step 2</Step>
+        <Step value="3"  class="relative">Step 3</Step>
       </StepList>
       <StepPanels>
         <!-- Step 1 Panel -->
@@ -101,7 +101,7 @@
     </Stepper>
 
     <!-- Camera Modal -->
-    <Transition name="fade ">
+    <Transition name="fade absolute">
       <div v-if="isCameraModalOpen"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen ">
         <div class="bg-white p-5 rounded-lg shadow-lg h-[90vh] w-[90vw] flex flex-col">
