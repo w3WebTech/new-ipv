@@ -207,43 +207,41 @@ const captureImage = async () => {
   canvas.height = video.videoHeight;
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
   const imageData = canvas.toDataURL('image/png');
-debugger
-  const img = new Image();
-  img.src = imageData;
-  img.onload = async () => {
-    debugger
-    try {
-      const results = await faceMesh.send({ image: img });
-      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-        capturedImage.value = imageData;
-        toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Face verification successful!',
-          life: 3000,
-        });
-      } else {
-        toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No face  . Please retake the image.',
-          life: 3000,
-        });
-      }
-    } catch (error) {
-      console.error("Error verifying face:", error);
+  capturedImage.value = imageData; // Save captured image to state
+
+  // Directly send the canvas image to faceMesh
+  try {
+    const results = await faceMesh.send({ image: canvas });
+    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Face verification successful!',
+        life: 3000,
+      });
+    } else {
       toast.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'An error occurred while verifying the face. Please try again.',
+        detail: 'No face detected. Please retake the image.',
         life: 3000,
       });
     }
-  };
+  } catch (error) {
+    console.error("Error verifying face:", error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'An error occurred while verifying the face. Please try again.',
+      life: 3000,
+    });
+  }
 
   closeCameraModal();
 };
+
 
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
