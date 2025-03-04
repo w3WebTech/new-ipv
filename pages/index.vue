@@ -335,7 +335,7 @@ const validateStep1 = (activateCallback) => {
 };
 
 const validateStep2 = (activateCallback) => {
-  if (capturedImage.value) {
+  if (capturedImage.value && errorMessage =='') {
     activateCallback('3');
   } else {
     toast.add({
