@@ -152,6 +152,9 @@ if (typeof window !== 'undefined') {
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
+    console.log('FaceMesh initialized');
+  }).catch((error) => {
+    console.error('Error initializing FaceMesh:', error);
   });
 }
 
@@ -166,7 +169,7 @@ const getLocation = () => {
         getAddressFromCoordinates(coordinates.value.latitude, coordinates.value.longitude);
       },
       (error) => {
-        console.error("Error getting location:", error);
+        console.error('Error getting location:', error);
         toast.add({
           severity: 'error',
           summary: 'Error',
@@ -174,7 +177,7 @@ const getLocation = () => {
           life: 3000,
         });
       },
-      { timeout: 10000 } // 10 seconds timeout
+      { timeout: 10000 }
     );
   } else {
     toast.add({
@@ -188,16 +191,18 @@ const getLocation = () => {
 
 const getAddressFromCoordinates = async (lat, lon) => {
   try {
-    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+    );
     const data = await response.json();
     if (data && data.display_name) {
       address.value = data.display_name;
     } else {
-      address.value = "Address not found.";
+      address.value = 'Address not found.';
     }
   } catch (error) {
-    console.error("Error fetching address:", error);
-    address.value = "Error fetching address.";
+    console.error('Error fetching address:', error);
+    address.value = 'Error fetching address.';
   }
 };
 
@@ -211,12 +216,11 @@ const startCamera = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
     const video = document.querySelector('video');
     if (video) {
-     
       video.srcObject = stream;
       isCameraActive.value = true;
     }
   } catch (error) {
-    console.error("Error accessing camera:", error);
+    console.error('Error accessing camera:', error);
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -271,7 +275,7 @@ const captureImage = async () => {
 
     try {
       const results = await faceMesh.send({ image: img });
-      console.log(results, results.multiFaceLandmarks, "multiFaceLandmarks");
+      console.log(results, results.multiFaceLandmarks, 'multiFaceLandmarks');
 
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
@@ -287,6 +291,7 @@ const captureImage = async () => {
             detail: 'Face verification successful!',
             life: 3000,
           });
+          // Proceed to next step
           activateCallback('3');
         } else {
           toast.add({
@@ -306,7 +311,7 @@ const captureImage = async () => {
         });
       }
     } catch (error) {
-      console.error("Error verifying face:", error);
+      console.error('Error verifying face:', error);
       toast.add({
         severity: 'error',
         summary: 'Error',
@@ -376,7 +381,7 @@ const reloadPage = () => {
 };
 
 const proceedToESign = () => {
-  alert("Proceeding to E-Sign...");
+  alert('Proceeding to E-Sign...');
 };
 
 onMounted(() => {
