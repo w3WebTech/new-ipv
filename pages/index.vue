@@ -273,39 +273,39 @@ const captureImage = async () => {
     console.log('FaceMesh results:', results);
 
     // Ensure results are not empty
-    if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      const landmarks = results.multiFaceLandmarks[0];
-      const leftEye = landmarks[159];
-      const rightEye = landmarks[386];
-      const eyeDistance = Math.abs(leftEye.y - rightEye.y);
+    // if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+    //   const landmarks = results.multiFaceLandmarks[0];
+    //   const leftEye = landmarks[159];
+    //   const rightEye = landmarks[386];
+    //   const eyeDistance = Math.abs(leftEye.y - rightEye.y);
 
-      if (eyeDistance > 0.01) {
-        capturedImage.value = imageData;
-        toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Face verification successful!',
-          life: 3000,
-        });
-        // Proceed to next step
-        activateCallback('3');
-      } else {
-        toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Liveness verification failed. Please retake the photo.',
-          life: 3000,
-        });
-        retakeCapture();
-      }
-    } else {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No face detected. Please retake the image.',
-        life: 3000,
-      });
-    }
+    //   if (eyeDistance > 0.01) {
+    //     capturedImage.value = imageData;
+    //     toast.add({
+    //       severity: 'success',
+    //       summary: 'Success',
+    //       detail: 'Face verification successful!',
+    //       life: 3000,
+    //     });
+    //     // Proceed to next step
+    //     activateCallback('3');
+    //   } else {
+    //     toast.add({
+    //       severity: 'error',
+    //       summary: 'Error',
+    //       detail: 'Liveness verification failed. Please retake the photo.',
+    //       life: 3000,
+    //     });
+    //     retakeCapture();
+    //   }
+    // } else {
+    //   toast.add({
+    //     severity: 'error',
+    //     summary: 'Error',
+    //     detail: 'No face detected. Please retake the image.',
+    //     life: 3000,
+    //   });
+    // }
   } catch (error) {
     console.error('Error verifying face:', error);
     toast.add({
