@@ -348,7 +348,18 @@ const onFaceMeshResults = (results) => {
   }
 };
 
-
+const validateStep2 = (activateCallback) => {
+  if (capturedImage.value) {
+    activateCallback('3');
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Please capture a face image before proceeding.',
+      life: 3000,
+    });
+  }
+};
 
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
