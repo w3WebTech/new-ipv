@@ -22,7 +22,7 @@
                     </div>
                     <div class="font-bold my-2 flex items-center justify-between">
                       <div>2. Allow Camera</div>
-                      <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
+                      <Button icon="pi pi-camera" aria-label="Save" @click="openCameraModal" />
                     </div>
                   </div>
                 </div>
@@ -126,6 +126,7 @@ import { useRoute } from 'vue-router';
 import Toast from 'primevue/toast';
 import 'primeicons/primeicons.css';
 import { FaceMesh } from '@mediapipe/face_mesh';
+
 const route = useRoute();
 const clientName = ref(route.query.clientName || '');
 const clientCode = ref(route.query.clientCode || '');
@@ -135,8 +136,7 @@ const isCameraActive = ref(false);
 const isCameraModalOpen = ref(false);
 const address = ref(null);
 const toast = useToast();
-
-
+let faceMesh = null;
 
 const getLocation = () => {
   if (navigator.geolocation) {
@@ -195,7 +195,8 @@ const startCamera = async () => {
     const video = document.querySelector('video');
     if (video) {
       video.srcObject = stream;
-      isCameraActive.value = true;
+      video.play();
+      console.log('Camera started:', stream);
     }
   } catch (error) {
     console.error('Error accessing camera:', error);
@@ -207,8 +208,8 @@ const startCamera = async () => {
     });
   }
 };
-let faceMesh = null;
-onMounted(() => {
+
+onMounted(async () => {
   if (typeof window !== 'undefined') {
     faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
@@ -221,11 +222,16 @@ onMounted(() => {
       minTrackingConfidence: 0.5,
     });
 
+    faceMesh.onResults(onFaceMeshResults);
     console.log('FaceMesh initialized');
   }
 });
+
 const captureImage = async () => {
-  debugger
+  if (!faceMesh) {
+    console.error('FaceMesh is not initialized.');
+    return;
+  }
 
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
@@ -235,20 +241,23 @@ const captureImage = async () => {
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   try {
-    // Convert canvas to ImageData
-    const context = canvas.getContext('2d');
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
     console.log('Sending ImageData to FaceMesh:', imageData);
+    await faceMesh.send({ image: imageData });
+  } catch (error) {
+    console.error('Error capturing image:', error);
+  }
+};
 
-    const results = await faceMesh.send({ image: imageData });
-
-    console.log('FaceMesh results:', results);
-    alert(results)
-    if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-     alert("hi")
+const onFaceMeshResults = (results) => {
+  console.log('FaceMesh results:', results);
+  if (results && results.multiFaceLandmarks) {
+    if (results.multiFaceLandmarks.length > 0) {
+      console.log('Face detected:', results.multiFaceLandmarks);
+      // Process the detected landmarks as needed
+      capturedImage.value = results; // Store results or process as needed
     } else {
-      console.log('No face detected or results are empty.');
+      console.log('No face detected.');
       toast.add({
         severity: 'error',
         summary: 'Error',
@@ -256,24 +265,13 @@ const captureImage = async () => {
         life: 3000,
       });
     }
-  } catch (error) {
-    console.error('Error verifying face:', error);
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'An error occurred while verifying the face. Please try again.',
-      life: 3000,
-    });
+  } else {
+    console.log('Results are undefined or malformed:', results);
   }
-
-  closeCameraModal();
 };
-
-
 
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
-  isCameraActive.value = false;
   const video = document.querySelector('video');
   if (video && video.srcObject) {
     const stream = video.srcObject;
