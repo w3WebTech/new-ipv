@@ -255,11 +255,9 @@ const captureImage = async () => {
   const imageData = canvas.toDataURL('image/png');
   console.log(imageData,"imageData")
 
-  const img = new Image();
-  img.src = imageData;
-console.log(img,"IMG")
-  img.onload = async () => {
-    if (!img.complete || img.naturalWidth === 0) {
+
+  imageData.onload = async () => {
+    if (!imageData.complete || imageData.naturalWidth === 0) {
       toast.add({
         severity: 'error',
         summary: 'Error',
