@@ -22,7 +22,7 @@
                     </div>
                     <div class="font-bold my-2 flex items-center justify-between">
                       <div>2. Allow Camera</div>
-                      <Button icon="pi pi-camera" aria-label="Save" @click="openCameraModal" />
+                      <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
                     </div>
                   </div>
                 </div>
