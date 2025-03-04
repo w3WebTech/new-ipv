@@ -55,6 +55,9 @@
                     </div>
                     <div v-if="capturedImage" class="mt-4">
                       <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+                      <div v-if="capturedImage && errorMessage" class="mt-2 text-red-500">
+  <p>{{ errorMessage }}</p>
+</div>
                       <div class="flex justify-center mt-2 px-5">
                         <Button label="Retake" @click="retakeCapture" class="w-full" />
                       </div>
@@ -137,7 +140,7 @@ const isCameraModalOpen = ref(false);
 const address = ref(null);
 const toast = useToast();
 let faceMesh = null;
-
+const errorMessage = ref('');
 const getLocation = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -251,15 +254,21 @@ const captureImage = async () => {
 };
 
 const onFaceMeshResults = (results) => {
-  debugger
   console.log('FaceMesh results:', results);
   if (results && results.multiFaceLandmarks) {
     if (results.multiFaceLandmarks.length > 0) {
       console.log('Face detected:', results.multiFaceLandmarks);
       closeCameraModal();
-      // capturedImage.value = results; // Store results or process as needed
+      // Show success message
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Face detected successfully!',
+        life: 3000,
+      });
     } else {
       console.log('No face detected.');
+      closeCameraModal(); // Close the modal if no face is detected
       toast.add({
         severity: 'error',
         summary: 'Error',
@@ -269,9 +278,15 @@ const onFaceMeshResults = (results) => {
     }
   } else {
     console.log('Results are undefined or malformed:', results);
+    closeCameraModal(); // Close the modal if results are undefined
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'An error occurred while processing the image. Please retake the image.',
+      life: 3000,
+    });
   }
 };
-
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
   const video = document.querySelector('video');
