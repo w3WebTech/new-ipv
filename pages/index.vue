@@ -240,7 +240,7 @@ const captureImage = async () => {
   canvas.height = video.videoHeight;
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+  capturedImage.value = canvas.toDataURL();
   try {
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     console.log('Sending ImageData to FaceMesh:', imageData);
@@ -256,7 +256,7 @@ const onFaceMeshResults = (results) => {
   if (results && results.multiFaceLandmarks) {
     if (results.multiFaceLandmarks.length > 0) {
       console.log('Face detected:', results.multiFaceLandmarks);
-      // Process the detected landmarks as needed
+      
       capturedImage.value = results; // Store results or process as needed
     } else {
       console.log('No face detected.');
