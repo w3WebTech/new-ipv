@@ -237,46 +237,24 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
-  debugger
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
+  canvas.width = video.videoWidth; // Set canvas size to video size
   canvas.height = video.videoHeight;
   const context = canvas.getContext('2d');
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  context.drawImage(video, 0, 0, canvas.width, canvas.height); // Draw the video frame onto the canvas
   
-  const imageData = canvas.toDataURL('image/png');
-  capturedImage.value = imageData; // Save captured image to state
-
-  // Directly send the canvas image to faceMesh
+  // Now you can send the canvas directly to FaceMesh
   try {
     const results = await faceMesh.send({ image: canvas });
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Face verification successful!',
-        life: 3000,
-      });
+      // Face detected
     } else {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No face detected. Please retake the image.',
-        life: 3000,
-      });
+      // No face detected
     }
   } catch (error) {
     console.error("Error verifying face:", error);
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'An error occurred while verifying the face. Please try again.',
-      life: 3000,
-    });
   }
-
-  closeCameraModal();
 };
 
 
