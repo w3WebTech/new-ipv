@@ -125,7 +125,7 @@ import StepPanel from 'primevue/steppanel';
 import { useRoute } from 'vue-router';
 import Toast from 'primevue/toast';
 import 'primeicons/primeicons.css';
-
+import { FaceMesh } from '@mediapipe/face_mesh';
 const route = useRoute();
 const clientName = ref(route.query.clientName || '');
 const clientCode = ref(route.query.clientCode || '');
@@ -136,33 +136,16 @@ const isCameraModalOpen = ref(false);
 const address = ref(null);
 const toast = useToast();
 
-let faceMesh = null;
+const faceMesh = new FaceMesh({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+});
 
-if (typeof window !== 'undefined') {
-  import('@mediapipe/face_mesh').then((module) => {
-    const { FaceMesh } = module;
-    faceMesh = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    });
-
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-
-    console.log('FaceMesh initialized');
-  }).catch((error) => {
-    console.error('Error initializing FaceMesh:', error);
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'FaceMesh initialization failed. Please refresh the page.',
-      life: 3000,
-    });
-  });
-}
+faceMesh.setOptions({
+  maxNumFaces: 1,
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5,
+});
 
 const getLocation = () => {
   if (navigator.geolocation) {
