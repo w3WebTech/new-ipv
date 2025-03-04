@@ -237,78 +237,37 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
+  debugger
   const video = document.querySelector('video');
-  if (!video || !video.videoWidth || !video.videoHeight) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Camera is not ready. Please try again.',
-      life: 3000,
-    });
-    return;
-  }
-
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
   const imageData = canvas.toDataURL('image/png');
+  capturedImage.value = imageData; // Save captured image to state
 
-  // Check if FaceMesh is initialized
-  if (!faceMesh) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'FaceMesh is not initialized. Please refresh the page.',
-      life: 3000,
-    });
-    return;
-  }
-
+  // Directly send the canvas image to faceMesh
   try {
-   debugger
-    const results = await faceMesh.send({ image: imageData });
-
-   
-    console.log('FaceMesh results:', results);
-
-    // Ensure results are not empty
-    // if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-    //   const landmarks = results.multiFaceLandmarks[0];
-    //   const leftEye = landmarks[159];
-    //   const rightEye = landmarks[386];
-    //   const eyeDistance = Math.abs(leftEye.y - rightEye.y);
-
-    //   if (eyeDistance > 0.01) {
-    //     capturedImage.value = imageData;
-    //     toast.add({
-    //       severity: 'success',
-    //       summary: 'Success',
-    //       detail: 'Face verification successful!',
-    //       life: 3000,
-    //     });
-    //     // Proceed to next step
-    //     activateCallback('3');
-    //   } else {
-    //     toast.add({
-    //       severity: 'error',
-    //       summary: 'Error',
-    //       detail: 'Liveness verification failed. Please retake the photo.',
-    //       life: 3000,
-    //     });
-    //     retakeCapture();
-    //   }
-    // } else {
-    //   toast.add({
-    //     severity: 'error',
-    //     summary: 'Error',
-    //     detail: 'No face detected. Please retake the image.',
-    //     life: 3000,
-    //   });
-    // }
+    const results = await faceMesh.send({ image: canvas });
+    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Face verification successful!',
+        life: 3000,
+      });
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No face detected. Please retake the image.',
+        life: 3000,
+      });
+    }
   } catch (error) {
-    console.error('Error verifying face:', error);
+    console.error("Error verifying face:", error);
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -319,6 +278,7 @@ const captureImage = async () => {
 
   closeCameraModal();
 };
+
 
 
 const closeCameraModal = () => {
