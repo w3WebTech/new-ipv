@@ -228,6 +228,7 @@ onMounted(async () => {
 });
 
 const captureImage = async () => {
+  debugger
   if (!faceMesh) {
     console.error('FaceMesh is not initialized.');
     return;
@@ -250,6 +251,7 @@ const captureImage = async () => {
 };
 
 const onFaceMeshResults = (results) => {
+  debugger
   console.log('FaceMesh results:', results);
   if (results && results.multiFaceLandmarks) {
     if (results.multiFaceLandmarks.length > 0) {
