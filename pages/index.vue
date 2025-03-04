@@ -264,6 +264,7 @@ const onFaceMeshResults = (results) => {
   isFaceProcessing.value = false; // Hide loader
   if (results && results.multiFaceLandmarks) {
     if (results.multiFaceLandmarks.length > 0) {
+      closeCameraModal();
       toast.add({
         severity: 'success',
         summary: 'Success',
@@ -278,9 +279,11 @@ const onFaceMeshResults = (results) => {
         detail: 'No face detected. Please retake the image.',
         life: 3000,
       });
+      closeCameraModal();
     }
   } else {
     errorMessage.value = 'Error processing the image. Please retake the image.';
+    closeCameraModal();
     toast.add({
       severity: 'error',
       summary: 'Error',
