@@ -253,7 +253,7 @@ const captureImage = async () => {
     const results = await faceMesh.send({ image: imageData });
 
     console.log('FaceMesh results:', results);
-
+    alert(results)
     if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
      alert("hi")
     } else {
