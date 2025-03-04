@@ -305,9 +305,10 @@ const closeCameraModal = () => {
 };
 
 const retakeCapture = () => {
-  capturedImage.value = null;
-  isFaceProcessing.value = false; // Hide loader
-  isCameraModalOpen.value = true;
+  capturedImage.value = null; // Clear the captured image
+  isFaceProcessing.value = false; // Hide the processing loader
+  isCameraModalOpen.value = true; // Open the camera modal again
+  captureImage(); // Start the camera again
 };
 
 const validateStep1 = (activateCallback) => {
