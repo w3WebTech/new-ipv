@@ -236,7 +236,6 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
-  debugger
   const video = document.querySelector('video');
   if (!video || !video.videoWidth || !video.videoHeight) {
     toast.add({
@@ -254,10 +253,11 @@ const captureImage = async () => {
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = canvas.toDataURL('image/png');
+  console.log(imageData,"imageData")
 
   const img = new Image();
   img.src = imageData;
-
+console.log(img,"IMG")
   img.onload = async () => {
     if (!img.complete || img.naturalWidth === 0) {
       toast.add({
@@ -269,6 +269,7 @@ const captureImage = async () => {
       return;
     }
 
+    // Check if FaceMesh is initialized
     if (!faceMesh) {
       toast.add({
         severity: 'error',
@@ -278,12 +279,16 @@ const captureImage = async () => {
       });
       return;
     }
-debugger
+
     try {
+      // Send the image to FaceMesh for analysis
       const results = await faceMesh.send({ image: img });
+
+      // Debug: Log results to inspect what was returned
       console.log('FaceMesh results:', results);
 
-      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      // Ensure results are not empty
+      if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
         const leftEye = landmarks[159];
         const rightEye = landmarks[386];
@@ -338,6 +343,7 @@ debugger
 
   closeCameraModal();
 };
+
 
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
