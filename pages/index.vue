@@ -256,8 +256,8 @@ const onFaceMeshResults = (results) => {
   if (results && results.multiFaceLandmarks) {
     if (results.multiFaceLandmarks.length > 0) {
       console.log('Face detected:', results.multiFaceLandmarks);
-      
-      capturedImage.value = results; // Store results or process as needed
+      closeCameraModal();
+      // capturedImage.value = results; // Store results or process as needed
     } else {
       console.log('No face detected.');
       toast.add({
