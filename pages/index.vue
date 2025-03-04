@@ -235,6 +235,7 @@ const startCamera = async () => {
 };
 
 const captureImage = async () => {
+  debugger
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
