@@ -297,7 +297,8 @@ const onFaceMeshResults = (results) => {
     else {
       const landmarks = results.multiFaceLandmarks[0]; // Assuming we are dealing with the first detected face
 
-      if (landmarks && landmarks.length < 468) { // 468 landmarks is the standard for a full face in face mesh
+      // Example: Checking if the landmarks count is sufficiently close to 468
+      if (landmarks && landmarks.length < 468) { // Check for full face landmarks
         errorMessage.value = 'Face detected, but it seems to be partial. Please ensure your whole face is visible.';
         toast.add({
           severity: 'error',
@@ -309,13 +310,30 @@ const onFaceMeshResults = (results) => {
       } 
       // Case 4: Full face detected (valid single face)
       else {
-        closeCameraModal();
-        toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Face detected successfully!',
-          life: 3000,
+        // Here we can check if the face is properly oriented
+        const visibleLandmarks = landmarks.filter((point) => {
+          return point.x > 0 && point.x < 1 && point.y > 0 && point.y < 1;  // Ensure the points are within the image's boundaries
         });
+
+        if (visibleLandmarks.length < 468) { // If visible landmarks are less than 468, the face might be partially visible
+          errorMessage.value = 'Face detected, but it seems to be partial. Please ensure your whole face is visible.';
+          toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Face detected, but it seems to be partial. Please ensure your whole face is visible.',
+            life: 3000,
+          });
+          closeCameraModal();
+        } else {
+          // If full face is detected and visible
+          closeCameraModal();
+          toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Face detected successfully!',
+            life: 3000,
+          });
+        }
       }
     }
   } else {
