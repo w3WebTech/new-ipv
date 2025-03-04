@@ -253,91 +253,68 @@ const captureImage = async () => {
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = canvas.toDataURL('image/png');
-  console.log(imageData,"imageData")
 
+  // Check if FaceMesh is initialized
+  if (!faceMesh) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'FaceMesh is not initialized. Please refresh the page.',
+      life: 3000,
+    });
+    return;
+  }
 
-  imageData.onload = async () => {
-    if (!imageData.complete || imageData.naturalWidth === 0) {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Invalid image. Please retake the photo.',
-        life: 3000,
-      });
-      return;
-    }
+  try {
+    // Send the image to FaceMesh for analysis
+    const results = await faceMesh.send({ image: imageData });
 
-    // Check if FaceMesh is initialized
-    if (!faceMesh) {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'FaceMesh is not initialized. Please refresh the page.',
-        life: 3000,
-      });
-      return;
-    }
+    // Debug: Log results to inspect what was returned
+    console.log('FaceMesh results:', results);
 
-    try {
-      // Send the image to FaceMesh for analysis
-      const results = await faceMesh.send({ image: imageData });
+    // Ensure results are not empty
+    if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      const landmarks = results.multiFaceLandmarks[0];
+      const leftEye = landmarks[159];
+      const rightEye = landmarks[386];
+      const eyeDistance = Math.abs(leftEye.y - rightEye.y);
 
-      // Debug: Log results to inspect what was returned
-      console.log('FaceMesh results:', results);
-
-      // Ensure results are not empty
-      if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-        const landmarks = results.multiFaceLandmarks[0];
-        const leftEye = landmarks[159];
-        const rightEye = landmarks[386];
-        const eyeDistance = Math.abs(leftEye.y - rightEye.y);
-
-        if (eyeDistance > 0.01) {
-          capturedImage.value = imageData;
-          toast.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Face verification successful!',
-            life: 3000,
-          });
-          // Proceed to next step
-          activateCallback('3');
-        } else {
-          toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Liveness verification failed. Please retake the photo.',
-            life: 3000,
-          });
-          retakeCapture();
-        }
+      if (eyeDistance > 0.01) {
+        capturedImage.value = imageData;
+        toast.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Face verification successful!',
+          life: 3000,
+        });
+        // Proceed to next step
+        activateCallback('3');
       } else {
         toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No face detected. Please retake the image.',
+          detail: 'Liveness verification failed. Please retake the photo.',
           life: 3000,
         });
+        retakeCapture();
       }
-    } catch (error) {
-      console.error('Error verifying face:', error);
+    } else {
       toast.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'An error occurred while verifying the face. Please try again.',
+        detail: 'No face detected. Please retake the image.',
         life: 3000,
       });
     }
-  };
-
-  img.onerror = () => {
+  } catch (error) {
+    console.error('Error verifying face:', error);
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Failed to load the captured image. Please try again.',
+      detail: 'An error occurred while verifying the face. Please try again.',
       life: 3000,
     });
-  };
+  }
 
   closeCameraModal();
 };
