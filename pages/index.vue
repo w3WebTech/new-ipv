@@ -1,11 +1,14 @@
 <template>
-  <div class="card flex justify-center px-5 my-10">
+  <div class="card flex justify-center px-5 my-5">
     <Stepper value="1" class="basis-[50rem]">
-      <StepList>
+      <div class="font-bold text-lg text-gray-400 flex justify-center">
+       In person Verfication
+      </div>
+      <!-- <StepList>
         <Step value="1" class="relative">Step 1</Step>
         <Step value="2" class="relative">Step 2</Step>
         <Step value="3"  class="relative">Step 3</Step>
-      </StepList>
+      </StepList> -->
       <StepPanels>
         <!-- Step 1 Panel -->
         <StepPanel v-slot="{ activateCallback }" value="1">
