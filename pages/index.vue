@@ -138,10 +138,11 @@ const toast = useToast();
 
 let faceMesh = null;
 
-// Initialize Face Mesh only in the browser
+
 if (typeof window !== 'undefined') {
   import('@mediapipe/face_mesh').then((module) => {
     const { FaceMesh } = module;
+    debugger
     faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
@@ -266,10 +267,10 @@ const captureImage = async () => {
   }
 
   try {
-    // Send the image to FaceMesh for analysis
+   debugger
     const results = await faceMesh.send({ image: imageData });
 
-    // Debug: Log results to inspect what was returned
+   
     console.log('FaceMesh results:', results);
 
     // Ensure results are not empty
