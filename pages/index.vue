@@ -270,7 +270,7 @@ const captureImage = async () => {
       return;
     }
 
-    // try {
+    try {
       const results = await faceMesh.send({ image: img });
 
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
@@ -311,15 +311,15 @@ const captureImage = async () => {
           life: 3000,
         });
       }
-    // } catch (error) {
-    //   console.error("Error verifying face:", error);
-    //   toast.add({
-    //     severity: 'error',
-    //     summary: 'Error',
-    //     detail: 'An error occurred while verifying the face. Please try again.',
-    //     life: 3000,
-    //   });
-    // }
+    } catch (error) {
+      console.error("Error verifying face:", error);
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'An error occurred while verifying the face. Please try again.',
+        life: 3000,
+      });
+    }
   };
 
   img.onerror = () => {
@@ -333,8 +333,6 @@ const captureImage = async () => {
 
   closeCameraModal();
 };
-
-
 
 const closeCameraModal = () => {
   isCameraModalOpen.value = false;
