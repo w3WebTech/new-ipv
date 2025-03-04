@@ -267,40 +267,69 @@ const captureImage = async () => {
 const onFaceMeshResults = (results) => {
   isFaceProcessing.value = false; // Hide loader
 
-  // Check if face landmarks exist and are not empty
-  if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-    const landmarks = results.multiFaceLandmarks[0]; // Assuming we are dealing with the first detected face
-    
-    // You can add more checks here if needed to validate that the landmarks are clear enough
-    if (landmarks && landmarks.length > 0) {
-      closeCameraModal(); // Close the camera modal
-      toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Face detected successfully!',
-        life: 3000,
-      });
-    } else {
-      errorMessage.value = 'No clear face detected. Please ensure your face is visible and retake the image.';
+  // Check if the face landmarks exist and are not empty
+  if (results && results.multiFaceLandmarks) {
+    const faceCount = results.multiFaceLandmarks.length;
+
+    // Case 1: Multiple faces detected
+    if (faceCount > 1) {
+      errorMessage.value = 'Multiple faces detected. Please ensure only one face is visible.';
       toast.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'No clear face detected. Please ensure your face is visible and retake the image.',
+        detail: 'Multiple faces detected. Please ensure only one face is visible.',
+        life: 3000,
+      });
+      closeCameraModal();
+    }
+    // Case 2: Face detected but not full (you can add more conditions here based on your needs)
+    else if (faceCount === 1) {
+      const landmarks = results.multiFaceLandmarks[0]; // Assuming we are dealing with the first detected face
+
+      // Example: Check if landmarks are sparse (could be an indication of a partially visible face)
+      if (landmarks && landmarks.length < 468) { // 468 landmarks is the standard for a full face in face mesh
+        errorMessage.value = 'Face detected, but it seems to be partial. Please ensure your whole face is visible.';
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Face detected, but it seems to be partial. Please ensure your whole face is visible.',
+          life: 3000,
+        });
+        closeCameraModal();
+      } else {
+        // Case 3: Valid single face detected (full face detected)
+        closeCameraModal();
+        toast.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Face detected successfully!',
+          life: 3000,
+        });
+      }
+    }
+    // Case 3: No face detected
+    else {
+      errorMessage.value = 'No face detected. Please retake the image.';
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No face detected. Please retake the image.',
         life: 3000,
       });
       closeCameraModal();
     }
   } else {
-    errorMessage.value = 'No face detected. Please retake the image.';
+    errorMessage.value = 'Error processing the image. Please retake the image.';
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'No face detected. Please retake the image.',
+      detail: 'Error processing the image. Please retake the image.',
       life: 3000,
     });
     closeCameraModal();
   }
 };
+
 
 
 const closeCameraModal = () => {
@@ -335,7 +364,7 @@ const validateStep1 = (activateCallback) => {
 };
 
 const validateStep2 = (activateCallback) => {
-  if (capturedImage.value && errorMessage =='') {
+  if (capturedImage.value && errorMessage.value == 'Face detected, but it seems to be partial. Please ensure your whole face is visible.') {
     activateCallback('3');
   } else {
     toast.add({
