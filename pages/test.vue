@@ -88,15 +88,16 @@
 <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
           <p>{{ errorMessage }}</p>
         </div>
-        <div v-if="messageType.value === 'success'" class="flex justify-center my-1">
+<div>
+<div v-if="messageType.value === 'success'" class="flex justify-center my-1">
   <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
 </div>
 
 
 <div v-else class="font-bold my-1 flex items-center justify-between">
   <Button label="Capture Image" @click="captureImage" class="w-full "/>
-</div><div>
-
+</div>
+</div>
 
 
        
