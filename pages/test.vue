@@ -52,8 +52,8 @@
                       <!-- Show captured image in Step 1 if it's available -->
                     
 
-                      <div class="font-bold my-2 flex items-center justify-between">
-                        <Button icon="pi pi-camera" aria-label="Save" label="Capture Image" @click="openCameraModal" />
+                      <div class="font-bold my-2 flex items-center justify-between ">
+                        <Button icon="pi pi-camera" aria-label="Save" label="Capture Image" @click="openCameraModal"  class="w-full my-3"/>
                       </div>
                     </div>
                   </div>
@@ -72,6 +72,9 @@
       <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
         <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
           <h2 class="text-lg font-bold mb-4">Capture Image</h2>
+          <div v-if="coordinates" class="mt-4 text-gray-700">
+            <p><strong>Location:</strong> Latitude: {{ coordinates.latitude }}, Longitude: {{ coordinates.longitude }}</p>
+          </div>
           <div class="flex-1">
             <video ref="video" autoplay playsinline class="w-full h-full"></video>
           </div>
