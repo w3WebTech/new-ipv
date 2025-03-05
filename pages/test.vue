@@ -178,7 +178,9 @@ const checkCameraPermission = async () => {
     return false;
   }
 };
-
+watch(messageType, (newValue, oldValue) => {
+  messageType.value=newvalue
+});
 const openCameraModal = async () => {
   const hasPermission = await checkCameraPermission();
   if (hasPermission) {
