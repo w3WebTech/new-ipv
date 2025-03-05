@@ -88,15 +88,15 @@
 <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
           <p>{{ errorMessage }}</p>
         </div>
-<!-- Show the proceed button after successful verification -->
-<div v-if="messageType.value === 'success'" class="flex justify-center my-1">
+        <div v-if="messageType.value === 'success'" class="flex justify-center my-1">
   <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
 </div>
 
-<!-- If verification is not successful, show the capture image button -->
-<div v-if="messageType.value !== 'success'" class="font-bold my-1 flex items-center justify-between">
+
+<div v-else class="font-bold my-1 flex items-center justify-between">
   <Button label="Capture Image" @click="captureImage" class="w-full "/>
-</div>
+</div><div>
+
 
 
        
