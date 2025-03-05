@@ -107,6 +107,7 @@
   const isCameraModalOpen = ref(false);
   const errorMessage = ref('');
   import { FaceMesh } from '@mediapipe/face_mesh';
+  let faceMesh = null;
   // Function to fetch the address using OpenStreetMap's Nominatim API
   const getAddressFromCoordinates = async (lat, lon) => {
     try {
