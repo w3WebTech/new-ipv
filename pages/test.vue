@@ -108,14 +108,17 @@ const coordinates = ref(null);
 const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
 const errorMessage = ref('');
-let messageType = '';
+
 let faceMesh = null;
-function messageTypeClass(messageType) {
+const messageType = ref(''); // Set as ref to trigger reactivity
+
+
+const messageTypeClass = computed(() => {
   return {
-    'text-red-500 bg-red-100 border-red-500 rounded-md p-3': messageType === 'error', // red color for error
-    'text-green-500 bg-green-100 border-green-500 rounded-md p-3': messageType === 'success', // green color for success
+    'text-red-500 bg-red-100 border-red-500 rounded-md p-3': messageType.value === 'error', // red color for error
+    'text-green-500 bg-green-100 border-green-500 rounded-md p-3': messageType.value === 'success', // green color for success
   };
-}
+});
 
 const getLocation = () => {
   if (navigator.geolocation) {
