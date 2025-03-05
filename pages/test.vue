@@ -67,14 +67,16 @@
         <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
           <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
             <h2 class="text-lg font-bold mb-4">Capture Image</h2>
-            <div v-if="address" class="mt-4 text-gray-700">
-              <p><strong>Location:</strong> {{ address }}</p>
-            </div>
             <div class="flex-1">
               <video ref="video" autoplay playsinline class="w-full h-full"></video>
             </div>
             <div class="flex justify-center mt-2">
               <Button label="Capture Image" @click="captureImage" class="w-full" />
+            </div>
+  
+            <!-- Show the location details -->
+            <div v-if="coordinates" class="mt-4 text-gray-700">
+              <p><strong>Location:</strong> Latitude: {{ coordinates.latitude }}, Longitude: {{ coordinates.longitude }}</p>
             </div>
   
             <div v-if="errorMessage" class="mt-2 text-red-500">
@@ -95,7 +97,6 @@
   import Stepper from 'primevue/stepper';
   import StepPanel from 'primevue/steppanel';
   import Toast from 'primevue/toast';
-  import { FaceMesh } from '@mediapipe/face_mesh';
   
   const toast = useToast();
   const clientName = ref("Client Name");
@@ -105,15 +106,12 @@
   const capturedImage = ref(null);
   const isCameraModalOpen = ref(false);
   const errorMessage = ref('');
-  const faceMesh = ref(null);
-  
+  import { FaceMesh } from '@mediapipe/face_mesh';
   // Function to fetch the address using OpenStreetMap's Nominatim API
   const getAddressFromCoordinates = async (lat, lon) => {
     try {
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
       const data = await response.json();
-      console.log('Address Data:', data); // Debugging line
-  
       if (data && data.display_name) {
         address.value = data.display_name;
       } else {
@@ -134,7 +132,6 @@
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           };
-          console.log('Coordinates:', coordinates.value); // Debugging line
           getAddressFromCoordinates(coordinates.value.latitude, coordinates.value.longitude); // Fetch address
         },
         (error) => {
@@ -144,7 +141,6 @@
             detail: 'Please allow location access to proceed.',
             life: 3000,
           });
-          console.error('Geolocation Error:', error); // Debugging line
         },
         { timeout: 10000 } // 10 seconds timeout
       );
@@ -221,10 +217,10 @@
   const onFaceMeshResults = (results) => {
     if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
       errorMessage.value = '';
-      isCameraModalOpen.value = false; // Reset error message on success
+      isCameraModalOpen.value = false;   // Reset error message on success
     } else {
       errorMessage.value = 'No face detected. Please retake the image.';
-      capturedImage.value = null; // Clear the captured image on error
+      capturedImage.value = null;  // Clear the captured image on error
       toast.add({
         severity: 'error',
         summary: 'Error',
@@ -234,24 +230,27 @@
     }
   };
   
-  onMounted(async () => {
-    if (typeof window !== 'undefined') {
-      // Load the faceMesh model and setup options
-      faceMesh.value = new FaceMesh({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`, // CDN link for face mesh files
-      });
-  
-      // Set the model options
-      faceMesh.value.setOptions({
-        maxNumFaces: 1, // Detect only one face
-        refineLandmarks: true, // Improve the accuracy of the face landmarks
-        minDetectionConfidence: 0.5, // Minimum detection confidence (between 0 and 1)
-        minTrackingConfidence: 0.5, // Minimum tracking confidence (between 0 and 1)
-      });
-  
-      // Set the callback to handle results
-      faceMesh.value.onResults(onFaceMeshResults);
-    }
-  });
+
+
+onMounted(async () => {
+  if (typeof window !== 'undefined') {
+    // Load the faceMesh model and setup options
+    faceMesh.value = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`, // CDN link for face mesh files
+    });
+
+    // Set the model options
+    faceMesh.value.setOptions({
+      maxNumFaces: 1, // Detect only one face
+      refineLandmarks: true, // Improve the accuracy of the face landmarks
+      minDetectionConfidence: 0.5, // Minimum detection confidence (between 0 and 1)
+      minTrackingConfidence: 0.5, // Minimum tracking confidence (between 0 and 1)
+    });
+
+    // Set the callback to handle results
+    faceMesh.value.onResults(onFaceMeshResults);
+  }
+});
+
   </script>
   
