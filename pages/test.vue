@@ -97,7 +97,7 @@
   import Stepper from 'primevue/stepper';
   import StepPanel from 'primevue/steppanel';
   import Toast from 'primevue/toast';
-  
+  import { FaceMesh } from '@mediapipe/face_mesh';
   const toast = useToast();
   const clientName = ref("Client Name");
   const clientCode = ref("Client Code");
@@ -106,8 +106,8 @@
   const capturedImage = ref(null);
   const isCameraModalOpen = ref(false);
   const errorMessage = ref('');
-  import { FaceMesh } from '@mediapipe/face_mesh';
-  let faceMesh = null;
+  let faceMesh;
+
   // Function to fetch the address using OpenStreetMap's Nominatim API
   const getAddressFromCoordinates = async (lat, lon) => {
     try {
@@ -233,25 +233,25 @@
   
 
 
-onMounted(async () => {
+  onMounted(async () => {
   if (typeof window !== 'undefined') {
-    // Load the faceMesh model and setup options
-    faceMesh.value = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`, // CDN link for face mesh files
+    faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
 
-    // Set the model options
-    faceMesh.value.setOptions({
-      maxNumFaces: 1, // Detect only one face
-      refineLandmarks: true, // Improve the accuracy of the face landmarks
-      minDetectionConfidence: 0.5, // Minimum detection confidence (between 0 and 1)
-      minTrackingConfidence: 0.5, // Minimum tracking confidence (between 0 and 1)
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
     });
 
-    // Set the callback to handle results
-    faceMesh.value.onResults(onFaceMeshResults);
+    faceMesh.onResults(onFaceMeshResults);
+    console.log('FaceMesh initialized');
   }
 });
+
+
 
   </script>
   
