@@ -128,7 +128,7 @@ const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
 const errorMessage = ref('');
 
-let faceMesh = ref(null);
+let faceMesh = null;
 const messageType = ref(''); // Set as ref to trigger reactivity
 
 
