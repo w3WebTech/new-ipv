@@ -82,14 +82,14 @@
 <div v-if="messageType.value !== 'success'" class="flex-1">
   <video ref="video" autoplay playsinline class="w-full h-full"></video>
 </div>
-<div v-if="messageType.value === 'success'" class="mt-4">
+<div v-if="messageType.value === 'success' && capturedImage" class="mt-4">
   <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
 </div>
 <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
           <p>{{ errorMessage }}</p>
         </div>
 
-        <div v-if="messageType.value === 'success'" class="flex justify-center my-1">
+        <div v-if="messageType.value === 'success' && capturedImage" class="flex justify-center my-1">
         <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
       </div>
 
