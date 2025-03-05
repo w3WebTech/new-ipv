@@ -14,40 +14,54 @@
                 <div class="border-gray-200 rounded bg-gray-50 font-medium">
                   <div class="card px-5 py-10">
                     <div class="gap-2">
-                      <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
-                      <div class="font-bold flex justify-center">How to do</div>
-                      <div class="font-bold my-2 flex items-center justify-between">
-                        <div>1. Enable GPS</div>
-                        <Button icon="pi pi-map-marker" aria-label="Save" @click="getLocation" />
-                      </div>
-                      <div class="font-bold my-2 flex items-center justify-between">
-                        <div>2. Allow Camera</div>
-                        <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
-                      </div>
+                      <!-- Check if captured image is available -->
+                      <div v-if="capturedImage" class="card flex flex-col items-center justify-center py-10 px-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="green" class="h-14 w-14 m-2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                        </svg>
   
-                      <!-- Show captured image in Step 1 if it's available -->
-                      <div v-if="capturedImage" class="mt-4">
-                        <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
-                        <div v-if="errorMessage" class="mt-2 text-red-500">
-                          <p>{{ errorMessage }}</p>
+                        <!-- Thank You message with Client Name -->
+                        <h2 class="text-xl font-bold">Thank You, {{ clientName }}!</h2>
+                        <p class="text-lg text-gray-700 mt-2 flex justify-center text-center">Your IP verification is completed.</p>
+                        <div class="mt-4">
+                          <Button label="Proceed to E-Sign" @click="proceedToESign"
+                            class="bg-blue-600 text-white hover:bg-blue-700 transition duration-200" />
                         </div>
                       </div>
   
-                      <div class="font-bold my-2 flex items-center justify-between">
-                        <Button icon="pi pi-camera" aria-label="Save" label="Capture Image" @click="openCameraModal" />
+                      <!-- Display Step UI if no captured image -->
+                      <div v-else>
+                        <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
+                        <div class="font-bold flex justify-center">How to do</div>
+                        <div class="font-bold my-2 flex items-center justify-between">
+                          <div>1. Enable GPS</div>
+                          <Button icon="pi pi-map-marker" aria-label="Save" @click="getLocation" />
+                        </div>
+                        <div class="font-bold my-2 flex items-center justify-between">
+                          <div>2. Allow Camera</div>
+                          <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
+                        </div>
+  
+                        <!-- Show captured image in Step 1 if it's available -->
+                        <div v-if="capturedImage" class="mt-4">
+                          <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+                          <div v-if="errorMessage" class="mt-2 text-red-500">
+                            <p>{{ errorMessage }}</p>
+                          </div>
+                        </div>
+  
+                        <div class="font-bold my-2 flex items-center justify-between">
+                          <Button icon="pi pi-camera" aria-label="Save" label="Capture Image" @click="openCameraModal" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="flex p-4 justify-end bg-gray-50">
-                  <!-- No action here for Step 1, it will be handled in validateStep1 -->
                 </div>
               </div>
             </div>
           </StepPanel>
   
           <!-- Step 2 and 3 panels would remain unchanged -->
-  
         </StepPanels>
       </Stepper>
   
@@ -199,7 +213,7 @@
     try {
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
       await faceMesh.send({ image: imageData });
-      isCameraModalOpen.value = false; 
+  
     } catch (error) {
       console.error('Error capturing image:', error);
     }
@@ -207,7 +221,8 @@
   
   const onFaceMeshResults = (results) => {
     if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-      errorMessage.value = '';  // Reset error message on success
+      errorMessage.value = '';
+      isCameraModalOpen.value = false;   // Reset error message on success
     } else {
       errorMessage.value = 'No face detected. Please retake the image.';
       capturedImage.value = null;  // Clear the captured image on error
@@ -219,15 +234,5 @@
       });
     }
   };
-  
   </script>
-  
-  <style scoped>
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s;
-  }
-  .fade-enter, .fade-leave-to {
-    opacity: 0;
-  }
-  </style>
   
