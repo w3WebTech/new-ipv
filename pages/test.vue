@@ -89,16 +89,15 @@
           <p>{{ errorMessage }}</p>
         </div>
 
-<div class="flex justify-center my-1">
-  <Button 
-  :label="messageType.value === 'success' ? 'Proceed to E-Sign' : 'Capture Image'" 
-  @click="messageType.value === 'success' ? proceedToESign : captureImage" 
-  :class="messageTypeClass" 
-  class="w-full"
-/>
-
+<div v-if="messageType.value === 'success' && capturedImage" class="flex justify-center my-1">
+  <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
 </div>
-                              
+
+
+<div v-if="messageType.value !== 'success' && !capturedImage" class="font-bold my-1 flex items-center justify-between">
+  <Button label="Capture Image" @click="captureImage" class="w-full "/>
+</div>
+
 
        
 
@@ -135,12 +134,10 @@ const messageType = ref(''); // Set as ref to trigger reactivity
 
 const messageTypeClass = computed(() => {
   return {
-    'flex justify-center text-sm bg-[#E4AEAE] rounded-md p-2': messageType.value === 'error', // red color for error
-    'flex justify-center bg-[#AEE3CF] text-sm rounded-md p-2': messageType.value === 'success', // green color for success
-    'flex justify-center bg-[#2249A6] text-sm rounded-md p-2': messageType.value !== 'success' && messageType.value !== 'error', // default color for other cases
+    'flex justify-center  text-sm bg-[#E4AEAE]  rounded-md p-2': messageType.value === 'error', // red color for error
+    'flex justify-center bg-[#AEE3CF]  text-sm  rounded-md p-2': messageType.value === 'success', // green color for success
   };
 });
-
 
 const getLocation = () => {
   if (navigator.geolocation) {
