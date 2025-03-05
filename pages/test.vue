@@ -1,8 +1,8 @@
 <template>
   <div class="card flex justify-center">
     <Stepper value="1" class="basis-[50rem]">
-      <div class="font-bold text-lg text-white py-5 flex bg-[#10B981]">
-        <img src="public/logo-2.jpeg" alt="" height="50" width="50" class="mx-5 rounded">
+      <div class="font-bold text-lg text-white py-5 flex bg-[#0d3ed1]">
+        <img src="public/logo-2.jpeg" alt="" height="60" width="60" class="mx-4 rounded">
         <div class="px-5 my-3"> In person Verification</div>
       </div>
 
@@ -100,7 +100,7 @@ import Stepper from 'primevue/stepper';
 import StepPanel from 'primevue/steppanel';
 import Toast from 'primevue/toast';
 import { FaceMesh } from '@mediapipe/face_mesh';
-
+import 'primeicons/primeicons.css';
 const toast = useToast();
 const clientName = ref("Client Name");  // Placeholder
 const clientCode = ref("Client Code");  // Placeholder
@@ -240,3 +240,10 @@ const onFaceMeshResults = (results) => {
   }
 };
 </script>
+<style>
+.p-button {
+ 
+    color: white !important;
+    background:#0d3ed1 !important;
+    border: 1px solid #0d3ed1 !important;}
+    </style>
