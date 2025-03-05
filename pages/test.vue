@@ -199,6 +199,7 @@
     try {
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
       await faceMesh.send({ image: imageData });
+      isCameraModalOpen.value = false; 
     } catch (error) {
       console.error('Error capturing image:', error);
     }
