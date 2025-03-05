@@ -89,14 +89,14 @@
           <p>{{ errorMessage }}</p>
         </div>
 
-        <div class="flex justify-center my-1">
-  <Button 
-    :label="buttonProperties.label" 
-    :class="buttonProperties.class" 
-    @click="buttonProperties.clickHandler" 
-    class="w-full" 
-  />
-</div>
+        <div v-if="messageType.value === 'success' " class="flex justify-center my-1">
+        <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
+      </div>
+
+      <!-- Capture Image button if verification is not successful -->
+      <div v-if="messageType.value !== 'success'" class="font-bold my-1 flex items-center justify-between">
+        <Button label="Capture Image" @click="captureImage" class="w-full "/>
+      </div>
 
        
 
@@ -136,21 +136,6 @@ const messageTypeClass = computed(() => {
     'flex justify-center  text-sm bg-[#E4AEAE]  rounded-md p-2': messageType.value === 'error', // red color for error
     'flex justify-center bg-[#AEE3CF]  text-sm  rounded-md p-2': messageType.value === 'success', // green color for success
   };
-});
-const buttonProperties = computed(() => {
-  if (messageType.value === 'success') {
-    return {
-      label: 'Proceed to E-Sign',
-      class: 'bg-blue-600 text-white hover:bg-blue-700 transition duration-200',
-      clickHandler: proceedToESign,
-    };
-  } else {
-    return {
-      label: 'Capture Image',
-      class: 'bg-gray-600 text-white hover:bg-gray-700 transition duration-200',
-      clickHandler: captureImage,
-    };
-  }
 });
 
 const getLocation = () => {
