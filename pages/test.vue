@@ -12,7 +12,7 @@
           <div class="border-2 border-dashed">
             <div class="flex flex-col h-full">
               <div class="border-gray-200 rounded bg-gray-50 font-medium">
-                <div class="card px-5 py-10">
+                <div class="card px-5 py-5">
                   <div class="gap-2">
                     <!-- Check if captured image is available -->
                     <div v-if="capturedImage" class="card flex flex-col items-center justify-center py-2 ">
@@ -73,7 +73,7 @@
         <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
           <h2 class="text-lg font-bold mb-4">Capture Image</h2>
           <div v-if="coordinates" class="mt-4 text-gray-700">
-            <p><strong>Location:</strong> Latitude: {{ coordinates.latitude }}, Longitude: {{ coordinates.longitude }}</p>
+            <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
           </div>
           <div class="flex-1">
             <video ref="video" autoplay playsinline class="w-full h-full"></video>
