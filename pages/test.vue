@@ -246,7 +246,7 @@ const captureImage = async () => {
 
   try {
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    await faceMesh.value.send({ image: imageData }); // Use faceMesh.value
+    await faceMesh.send({ image: imageData }); // Use faceMesh.value
   } catch (error) {
     console.error('Error capturing image:', error);
   }
