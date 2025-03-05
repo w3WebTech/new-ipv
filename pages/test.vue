@@ -3,16 +3,40 @@
     <Stepper value="1" class="basis-[50rem]">
       <div class="font-bold text-lg text-white py-5 flex bg-[#2249A6]">
         <img src="public/logo-2.jpeg" alt="" height="90" width="90" class="mx-4 rounded">
-        <div class="px-5 flex flex-col justify-center item-center text-center"> In person Verification</div>
+        <div class="px-5  flex flex-col justify-center item-center text-center"> In person Verification</div>
       </div>
 
       <StepPanels class="px-5 my-3">
+        <!-- Step 1 Panel -->
         <StepPanel v-slot="{ activateCallback }" value="1">
           <div class="border-2 border-dashed">
             <div class="flex flex-col h-full">
               <div class="border-gray-200 rounded bg-gray-50 font-medium">
                 <div class="card px-5 py-5">
                   <div class="gap-2">
+                    <!-- Check if captured image is available -->
+                    <!-- <div v-if="capturedImage" class="card flex flex-col items-center justify-center py-2 ">
+                      
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="green" class="h-14 w-14 m-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                      </svg>
+
+                    
+                      <h2 class="text-xl font-bold">Thank You, {{ clientName }}!</h2>
+                      <p class="text-lg text-gray-700 mt-2 flex justify-center text-center">Your IP verification is completed.</p>
+                      <div v-if="capturedImage" class="mt-4">
+                        <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+                        <div v-if="errorMessage" class="mt-2 text-red-500">
+                          <p>{{ errorMessage }}</p>
+                        </div>
+                      </div>
+                      <div class="mt-4">
+                        <Button label="Proceed to E-Sign" @click="proceedToESign"
+                          class="bg-blue-600 text-white hover:bg-blue-700 transition duration-200" />
+                      </div>
+                    </div> -->
+
+                    <!-- Display Step UI if no captured image -->
                     <div>
                       <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
                       <div class="font-bold flex justify-start">How to do IPV</div>
@@ -25,19 +49,11 @@
                         <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
                       </div>
 
-                      <!-- Show captured image if available -->
-                      <div v-if="messageType.value === 'success'" class="mt-4">
-                        <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
-                      </div>
+                      <!-- Show captured image in Step 1 if it's available -->
+                    
 
-                      <!-- Show the proceed button when verification is successful -->
-                      <div v-if="messageType.value === 'success'" class="flex justify-center">
-                        <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
-                      </div>
-
-                      <!-- If not successful, show the capture button -->
-                      <div v-if="messageType.value !== 'success'" class="font-bold my-2 flex items-center justify-between">
-                        <Button label="PROCEED" @click="openCameraModal" class="w-full my-3"/>
+                      <div class="font-bold my-2 flex items-center justify-between ">
+                        <Button  aria-label="Save" label="PROCEED" @click="openCameraModal"  class="w-full my-3"/>
                       </div>
                     </div>
                   </div>
@@ -46,45 +62,57 @@
             </div>
           </div>
         </StepPanel>
+
+        <!-- Step 2 and 3 panels would remain unchanged -->
       </StepPanels>
     </Stepper>
 
-    <Transition name="fade absolute">
-      <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
-        <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
-          <!-- Show location coordinates -->
-          <div v-if="coordinates" class="text-gray-700 my-1">
-            <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
-          </div>
 
-          <!-- Show video feed when verification is not completed -->
-          <div v-if="messageType.value !== 'success'" class="flex-1">
-            <video ref="video" autoplay playsinline class="w-full h-full"></video>
-          </div>
-
-          <!-- Show error or success message -->
-          <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
-            <p>{{ errorMessage }}</p>
-          </div>
-
-          <!-- If verification is successful, show the 'Proceed to E-Sign' button -->
-          <div v-if="messageType.value === 'success'" class="flex justify-center my-1">
-            <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
-          </div>
-
-          <!-- If verification is not successful, show the capture image button -->
-          <div v-if="messageType.value !== 'success'" class="flex justify-center my-1">
-            <Button label="Capture Image" @click="captureImage" class="w-full" />
-          </div>
+  <Transition name="fade absolute">
+    <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
+      <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
+        <!-- <h2 class="text-lg font-bold ">Capture Image</h2> -->
+        <div v-if="coordinates" class=" text-gray-700 my-1">
+          <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
         </div>
+       
+       
+     
+<!-- Show video feed when verification is not completed -->
+<div v-if="messageType.value !== 'success'" class="flex-1">
+  <video ref="video" autoplay playsinline class="w-full h-full"></video>
+</div>
+<div v-if="messageType.value === 'success'" class="mt-4">
+  <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+</div>
+<div v-if="errorMessage" class="my-1" :class="messageTypeClass">
+          <p>{{ errorMessage }}</p>
+        </div>
+<!-- Show the proceed button after successful verification -->
+<div v-if="messageType.value === 'success'" class="flex justify-center my-1">
+  <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
+</div>
+
+<!-- If verification is not successful, show the capture image button -->
+<div v-if="messageType.value !== 'success'" class="font-bold my-2 flex items-center justify-between">
+  <Button label="PROCEED" @click="openCameraModal" class="w-full my-3"/>
+</div>
+
+
+       
+
+        
+        
       </div>
-    </Transition>
+    </div>
+  </Transition>
 
     <Toast />
   </div>
 </template>
+
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import Button from 'primevue/button';
 import Stepper from 'primevue/stepper';
@@ -92,7 +120,6 @@ import StepPanel from 'primevue/steppanel';
 import Toast from 'primevue/toast';
 import { FaceMesh } from '@mediapipe/face_mesh';
 import 'primeicons/primeicons.css';
-
 const toast = useToast();
 const clientName = ref("Client Name");  // Placeholder
 const clientCode = ref("Client Code");  // Placeholder
@@ -100,13 +127,15 @@ const coordinates = ref(null);
 const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
 const errorMessage = ref('');
+
+let faceMesh = null;
 const messageType = ref(''); // Set as ref to trigger reactivity
 
-// Computed property for conditional styling based on message type
+
 const messageTypeClass = computed(() => {
   return {
-    'flex justify-center text-sm bg-[#E4AEAE] rounded-md p-2': messageType.value === 'error',
-    'flex justify-center bg-[#AEE3CF] text-sm rounded-md p-2': messageType.value === 'success',
+    'flex justify-center  text-sm bg-[#E4AEAE]  rounded-md p-2': messageType.value === 'error', // red color for error
+    'flex justify-center bg-[#AEE3CF]  text-sm  rounded-md p-2': messageType.value === 'success', // green color for success
   };
 });
 
@@ -127,7 +156,7 @@ const getLocation = () => {
           life: 3000,
         });
       },
-      { timeout: 10000 }
+      { timeout: 10000 }  // 10 seconds timeout
     );
   } else {
     toast.add({
@@ -186,7 +215,7 @@ const startCamera = async () => {
 
 onMounted(async () => {
   if (typeof window !== 'undefined') {
-    const faceMesh = new FaceMesh({
+    faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
 
@@ -202,6 +231,11 @@ onMounted(async () => {
 });
 
 const captureImage = async () => {
+  if (!faceMesh) {
+    console.error('FaceMesh is not initialized.');
+    return;
+  }
+
   const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
@@ -213,6 +247,7 @@ const captureImage = async () => {
   try {
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     await faceMesh.send({ image: imageData });
+
   } catch (error) {
     console.error('Error capturing image:', error);
   }
@@ -221,16 +256,18 @@ const captureImage = async () => {
 const onFaceMeshResults = (results) => {
   if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     errorMessage.value = 'Verification Completed';
-    messageType.value = 'success';
+    messageType.value = 'success'; 
   } else {
     errorMessage.value = 'No face detected. Please retake the image.';
-    capturedImage.value = null;
-    messageType.value = 'error';
+    capturedImage.value = null;  
+    messageType.value = 'error'; // Clear the captured image on error
+    // toast.add({
+    //   severity: 'error',
+    //   summary: 'Error',
+    //   detail: 'No face detected. Please retake the image.',
+    //   life: 3000,
+    // });
   }
-};
-
-const proceedToESign = () => {
-  console.log("Proceeding to E-Sign");
 };
 </script>
 <style>
