@@ -1,7 +1,7 @@
 <template>
   <div class="card flex justify-center">
     <Stepper value="1" class="basis-[50rem]">
-      <div class="font-bold text-lg text-white py-5 flex bg-[#0d3ed1]">
+      <div class="font-bold text-lg text-white py-5 flex bg-[#2249A6]">
         <img src="public/logo-2.jpeg" alt="" height="90" width="90" class="mx-4 rounded">
         <div class="px-5  flex flex-col justify-center item-center text-center"> In person Verification</div>
       </div>
@@ -71,19 +71,20 @@
   <Transition name="fade absolute">
     <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
       <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
-        <h2 class="text-lg font-bold mb-4">Capture Image</h2>
-        <div v-if="coordinates" class="mt-4 text-gray-700">
+        <h2 class="text-lg font-bold ">Capture Image</h2>
+        <div v-if="coordinates" class=" text-gray-700 my-1">
           <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
         </div>
         <div class="flex-1">
           <video ref="video" autoplay playsinline class="w-full h-full"></video>
         </div>
-        <div class="flex justify-center mt-2">
-          <Button label="Capture Image" @click="captureImage" class="w-full" />
-        </div>
-        <div v-if="errorMessage" class="mt-2" :class="messageTypeClass">
+        <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
           <p>{{ errorMessage }}</p>
         </div>
+        <div class="flex justify-center my-1">
+          <Button label="Capture Image" @click="captureImage" class="w-full" />
+        </div>
+        
       </div>
     </div>
   </Transition>
@@ -115,8 +116,8 @@ const messageType = ref(''); // Set as ref to trigger reactivity
 
 const messageTypeClass = computed(() => {
   return {
-    'text-red-500 bg-red-100 border-red-500 rounded-md p-3': messageType.value === 'error', // red color for error
-    'text-green-500 bg-green-100 border-green-500 rounded-md p-3': messageType.value === 'success', // green color for success
+    'flex justify-center  text-sm bg-[#E4AEAE]  rounded-md p-2': messageType.value === 'error', // red color for error
+    'flex justify-center bg-[#AEE3CF]  text-sm  rounded-md p-2': messageType.value === 'success', // green color for success
   };
 });
 
@@ -242,12 +243,12 @@ const onFaceMeshResults = (results) => {
     errorMessage.value = 'No face detected. Please retake the image.';
     capturedImage.value = null;  
     messageType.value = 'error'; // Clear the captured image on error
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'No face detected. Please retake the image.',
-      life: 3000,
-    });
+    // toast.add({
+    //   severity: 'error',
+    //   summary: 'Error',
+    //   detail: 'No face detected. Please retake the image.',
+    //   life: 3000,
+    // });
   }
 };
 </script>
@@ -255,6 +256,6 @@ const onFaceMeshResults = (results) => {
 .p-button {
  
     color: white !important;
-    background:#0d3ed1 !important;
-    border: 1px solid #0d3ed1 !important;}
+    background:#2249A6 !important;
+    border: 1px solid #2249A6 !important;}
     </style>
