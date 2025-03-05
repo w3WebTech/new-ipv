@@ -94,8 +94,8 @@
 </div>
 
 <!-- If verification is not successful, show the capture image button -->
-<div v-if="messageType.value !== 'success'" class="font-bold my-2 flex items-center justify-between">
-  <Button label="PROCEED" @click="captureImage" class="w-full my-3"/>
+<div v-if="messageType.value !== 'success'" class="font-bold my-1 flex items-center justify-between">
+  <Button label="Capture Image" @click="captureImage" class="w-full "/>
 </div>
 
 
