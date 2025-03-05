@@ -95,7 +95,7 @@
 
 <!-- If verification is not successful, show the capture image button -->
 <div v-if="messageType.value !== 'success'" class="font-bold my-2 flex items-center justify-between">
-  <Button label="PROCEED" @click="openCameraModal" class="w-full my-3"/>
+  <Button label="PROCEED" @click="captureImage" class="w-full my-3"/>
 </div>
 
 
@@ -128,7 +128,7 @@ const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
 const errorMessage = ref('');
 
-let faceMesh = null;
+let faceMesh = ref(null);
 const messageType = ref(''); // Set as ref to trigger reactivity
 
 
@@ -231,12 +231,12 @@ onMounted(async () => {
 });
 
 const captureImage = async () => {
-  if (!faceMesh) {
-    console.error('FaceMesh is not initialized.');
+  const video = document.querySelector('video');
+  if (!video) {
+    console.error('Video element not found.');
     return;
   }
 
-  const video = document.querySelector('video');
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -246,8 +246,7 @@ const captureImage = async () => {
 
   try {
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    await faceMesh.send({ image: imageData });
-
+    await faceMesh.value.send({ image: imageData }); // Use faceMesh.value
   } catch (error) {
     console.error('Error capturing image:', error);
   }
@@ -261,12 +260,7 @@ const onFaceMeshResults = (results) => {
     errorMessage.value = 'No face detected. Please retake the image.';
     capturedImage.value = null;  
     messageType.value = 'error'; // Clear the captured image on error
-    // toast.add({
-    //   severity: 'error',
-    //   summary: 'Error',
-    //   detail: 'No face detected. Please retake the image.',
-    //   life: 3000,
-    // });
+ 
   }
 };
 </script>
