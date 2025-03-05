@@ -106,7 +106,7 @@
   const capturedImage = ref(null);
   const isCameraModalOpen = ref(false);
   const errorMessage = ref('');
-  let faceMesh;
+  let faceMesh = null;
 
   // Function to fetch the address using OpenStreetMap's Nominatim API
   const getAddressFromCoordinates = async (lat, lon) => {
