@@ -215,6 +215,7 @@ const startCamera = async () => {
 };
 
 onMounted(async () => {
+  
   if (typeof window !== 'undefined') {
     faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
@@ -258,7 +259,7 @@ const onFaceMeshResults = (results) => {
     errorMessage.value = 'Verification Completed';
     messageType.value = 'success'; 
   } else {
-    errorMessage.value = 'No face detected. Please retake the image.';
+    errorMessage.value = 'Sorry ,Invalid picture ,please retake !';
     capturedImage.value = null;  
     messageType.value = 'error'; // Clear the captured image on error
  
