@@ -67,26 +67,26 @@
       </StepPanels>
     </Stepper>
 
-    <!-- Camera Modal -->
-    <Transition name="fade absolute">
-      <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
-        <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
-          <h2 class="text-lg font-bold mb-4">Capture Image</h2>
-          <div v-if="coordinates" class="mt-4 text-gray-700">
-            <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
-          </div>
-          <div class="flex-1">
-            <video ref="video" autoplay playsinline class="w-full h-full"></video>
-          </div>
-          <div class="flex justify-center mt-2">
-            <Button label="Capture Image" @click="captureImage" class="w-full" />
-          </div>
-          <div v-if="errorMessage" class="mt-2 text-red-500">
-            <p>{{ errorMessage }}</p>
-          </div>
+
+  <Transition name="fade absolute">
+    <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
+      <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
+        <h2 class="text-lg font-bold mb-4">Capture Image</h2>
+        <div v-if="coordinates" class="mt-4 text-gray-700">
+          <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
+        </div>
+        <div class="flex-1">
+          <video ref="video" autoplay playsinline class="w-full h-full"></video>
+        </div>
+        <div class="flex justify-center mt-2">
+          <Button label="Capture Image" @click="captureImage" class="w-full" />
+        </div>
+        <div v-if="errorMessage" class="mt-2" :class="messageTypeClass">
+          <p>{{ errorMessage }}</p>
         </div>
       </div>
-    </Transition>
+    </div>
+  </Transition>
 
     <Toast />
   </div>
@@ -108,7 +108,14 @@ const coordinates = ref(null);
 const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
 const errorMessage = ref('');
+let messageType = '';
 let faceMesh = null;
+function messageTypeClass(messageType) {
+  return {
+    'text-red-500 bg-red-100 border-red-500 rounded-md p-3': messageType === 'error', // red color for error
+    'text-green-500 bg-green-100 border-green-500 rounded-md p-3': messageType === 'success', // green color for success
+  };
+}
 
 const getLocation = () => {
   if (navigator.geolocation) {
@@ -226,11 +233,12 @@ const captureImage = async () => {
 
 const onFaceMeshResults = (results) => {
   if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-    errorMessage.value = '';
-    isCameraModalOpen.value = false;   // Reset error message on success
+    errorMessage.value = 'Verification Completed';
+    messageType.value = 'success'; 
   } else {
     errorMessage.value = 'No face detected. Please retake the image.';
-    capturedImage.value = null;  // Clear the captured image on error
+    capturedImage.value = null;  
+    messageType.value = 'error'; // Clear the captured image on error
     toast.add({
       severity: 'error',
       summary: 'Error',
