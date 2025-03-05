@@ -81,13 +81,14 @@
         <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
           <p>{{ errorMessage }}</p>
         </div>
-
-        <div class="flex justify-center my-1" v-if="messageType.value == 'error'">
-          <Button label="Capture Image" @click="captureImage" class="w-full" />
-        </div>
-        <div class="flex justify-center my-1" v-else>
+        <div class="flex justify-center my-1" v-else-if="messageType.value == 'success'">
           <Button label="Proceed to Esign" @click="" class="w-full" />
         </div>
+        <div class="flex justify-center my-1" v-else>
+          <Button label="Capture Image" @click="captureImage" class="w-full" />
+        </div>
+       
+
         
         
       </div>
