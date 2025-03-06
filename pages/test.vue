@@ -82,10 +82,10 @@
           <!-- Show video feed when verification is not completed -->
 
           <div>
-            <div v-if="successMsg" class="flex-1">
+            <div v-if="successMsg" class="flex-1 my-4">
               <img :src="capturedImage" alt="Captured Image" class="w-full h-full" />
             </div>
-            <div v-else class="flex-1">
+            <div v-else class="flex-1 my-4">
               <video ref="video" autoplay playsinline class="w-full h-full"></video>
             </div>
           </div>
