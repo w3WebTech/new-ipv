@@ -82,8 +82,8 @@
           <!-- Show video feed when verification is not completed -->
 
           <div>
-            <div v-if="successMsg" class="mt-4">
-              <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+            <div v-if="successMsg" class="flex-1">
+              <img :src="capturedImage" alt="Captured Image" class="w-full h-full" />
             </div>
             <div v-else class="flex-1">
               <video ref="video" autoplay playsinline class="w-full h-full"></video>
@@ -95,7 +95,7 @@
             <p>{{ errorMessage }}</p>
           </div>
           <div>
-            <div v-if="successMsg" class="flex justify-center my-1">
+            <div v-if="successMsg" class="font-bold my-1 flex items-center justify-between">
               <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
             </div>
 
