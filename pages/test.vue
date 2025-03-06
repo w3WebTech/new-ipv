@@ -95,7 +95,7 @@
             <p>{{ errorMessage }}</p>
           </div>
           <div v-else>
-<p class=" flex justify-center  text-sm bg-white text-white  rounded-md p-2">hello</p>
+<p class=" flex justify-center  text-sm bg-white text-white  rounded-md p-2 my-1">hello</p>
           </div>
 </div>
       
