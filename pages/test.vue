@@ -6,9 +6,9 @@
         <div class="px-5  flex flex-col justify-center item-center text-center"> In person Verification</div>
       </div>
 
-      <StepPanels class="px-5 my-3">
+      <div class="px-5 my-3">
         <!-- Step 1 Panel -->
-        <StepPanel v-slot="{ activateCallback }" value="1">
+       
           <div class="border-2 border-dashed">
             <div class="flex flex-col h-full">
               <div class="border-gray-200 rounded bg-gray-50 font-medium">
@@ -61,17 +61,17 @@
               </div>
             </div>
           </div>
-        </StepPanel>
+        
 
         <!-- Step 2 and 3 panels would remain unchanged -->
-      </StepPanels>
+        </div>
     </Stepper>
 
 
     <Transition name="fade absolute">
       <div v-if="isCameraModalOpen"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
-        <div class="bg-white p-5 rounded-lg shadow-lg h-[70vh] w-[90vw] flex flex-col">
+        <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
           <!-- <h2 class="text-lg font-bold ">Capture Image</h2> -->
           <div v-if="coordinates" class=" text-gray-700 my-1">
             <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
@@ -95,17 +95,17 @@
             <p>{{ errorMessage }}</p>
           </div>
           <div v-else>
-<p class=" flex justify-center  text-sm bg-white text-white  rounded-md p-2"></p>
+<p class=" flex justify-center  text-sm bg-white text-white  rounded-md p-2">hello</p>
           </div>
 </div>
       
           <div>
-            <div v-if="successMsg" class="font-bold my-1 flex items-center justify-between">
+            <div v-if="successMsg" class="font-bold my-2 flex items-center justify-between my-2">
               <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
             </div>
 
             <!-- Capture Image button if verification is not successful -->
-            <div v-else class="font-bold my-1 flex items-center justify-between">
+            <div v-else class="font-bold my-2 flex items-center justify-between">
               <Button label="Capture Image" @click="captureImage" class="w-full " />
             </div>
           </div>
