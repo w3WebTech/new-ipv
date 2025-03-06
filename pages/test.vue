@@ -179,7 +179,8 @@ const checkCameraPermission = async () => {
   }
 };
 watch(messageType, (newValue, oldValue) => {
-  messageType.value=newvalue
+  debugger
+  messageType.value= newValue
 });
 const openCameraModal = async () => {
   const hasPermission = await checkCameraPermission();
@@ -255,6 +256,7 @@ const captureImage = async () => {
 };
 
 const onFaceMeshResults = (results) => {
+  debugger
   if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     errorMessage.value = 'Verification Completed';
     messageType.value = 'success'; 
