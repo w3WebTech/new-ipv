@@ -50,10 +50,10 @@
                       </div>
 
                       <!-- Show captured image in Step 1 if it's available -->
-                    
+
 
                       <div class="font-bold my-2 flex items-center justify-between ">
-                        <Button  aria-label="Save" label="PROCEED" @click="openCameraModal"  class="w-full my-3"/>
+                        <Button aria-label="Save" label="PROCEED" @click="openCameraModal" class="w-full my-3" />
                       </div>
                     </div>
                   </div>
@@ -68,50 +68,57 @@
     </Stepper>
 
 
-  <Transition name="fade absolute">
-    <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
-      <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
-        <!-- <h2 class="text-lg font-bold ">Capture Image</h2> -->
-        <div v-if="coordinates" class=" text-gray-700 my-1">
-          <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
+    <Transition name="fade absolute">
+      <div v-if="isCameraModalOpen"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
+        <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
+          <!-- <h2 class="text-lg font-bold ">Capture Image</h2> -->
+          <div v-if="coordinates" class=" text-gray-700 my-1">
+            <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
+          </div>
+
+
+
+          <!-- Show video feed when verification is not completed -->
+
+          <div>
+            <div v-if="successMsg" class="mt-4">
+              <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+            </div>
+            <div v-else class="flex-1">
+              <video ref="video" autoplay playsinline class="w-full h-full"></video>
+            </div>
+          </div>
+
+
+          <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
+            <p>{{ errorMessage }}</p>
+          </div>
+          <div>
+            <div v-if="successMsg" class="flex justify-center my-1">
+              <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
+            </div>
+
+            <!-- Capture Image button if verification is not successful -->
+            <div v-else class="font-bold my-1 flex items-center justify-between">
+              <Button label="Capture Image" @click="captureImage" class="w-full " />
+            </div>
+          </div>
+
+
+
+
+
         </div>
-       
-       
-     
-<!-- Show video feed when verification is not completed -->
-<div v-if="messageType.value !== 'success'" class="flex-1">
-  <video ref="video" autoplay playsinline class="w-full h-full"></video>
-</div>
-<div v-if="messageType.value === 'success' " class="mt-4">
-  <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
-</div>
-<div v-if="errorMessage" class="my-1" :class="messageTypeClass">
-          <p>{{ errorMessage }}</p>
-        </div>
-
-        <div v-if="messageType.value === 'success' " class="flex justify-center my-1">
-        <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
       </div>
-
-      <!-- Capture Image button if verification is not successful -->
-      <div v-if="messageType.value !== 'success'" class="font-bold my-1 flex items-center justify-between">
-        <Button label="Capture Image" @click="captureImage" class="w-full "/>
-      </div>
-
-       
-
-        
-        
-      </div>
-    </div>
-  </Transition>
+    </Transition>
 
     <Toast />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted,computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import Button from 'primevue/button';
 import Stepper from 'primevue/stepper';
@@ -128,7 +135,9 @@ const isCameraModalOpen = ref(false);
 const errorMessage = ref('');
 
 let faceMesh = null;
-const messageType = ref(''); // Set as ref to trigger reactivity
+const messageType = ref('');
+const errorMsg = ref(false);
+const successMsg = ref(false)
 
 
 const messageTypeClass = computed(() => {
@@ -179,7 +188,7 @@ const checkCameraPermission = async () => {
   }
 };
 watch(messageType, (newValue, oldValue) => {
-  messageType.value= newValue
+  messageType.value = newValue
 });
 const openCameraModal = async () => {
   const hasPermission = await checkCameraPermission();
@@ -215,7 +224,7 @@ const startCamera = async () => {
 };
 
 onMounted(async () => {
-  
+
   if (typeof window !== 'undefined') {
     faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
@@ -257,19 +266,23 @@ const captureImage = async () => {
 const onFaceMeshResults = (results) => {
   if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     errorMessage.value = 'Verification Completed';
-    messageType.value = 'success'; 
+    messageType.value = 'success';
+    successMsg.value = true;
+
   } else {
     errorMessage.value = 'Sorry ,Invalid picture ,please retake !';
-    capturedImage.value = null;  
+    capturedImage.value = null;
+    errorMsg.value = true;
     messageType.value = 'error'; // Clear the captured image on error
- 
+
   }
 };
 </script>
 <style>
 .p-button {
- 
-    color: white !important;
-    background:#2249A6 !important;
-    border: 1px solid #2249A6 !important;}
-    </style>
+
+  color: white !important;
+  background: #2249A6 !important;
+  border: 1px solid #2249A6 !important;
+}
+</style>
