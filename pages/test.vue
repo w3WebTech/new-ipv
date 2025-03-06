@@ -71,7 +71,7 @@
     <Transition name="fade absolute">
       <div v-if="isCameraModalOpen"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
-        <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
+        <div class="bg-white p-5 rounded-lg shadow-lg h-[70vh] w-[90vw] flex flex-col">
           <!-- <h2 class="text-lg font-bold ">Capture Image</h2> -->
           <div v-if="coordinates" class=" text-gray-700 my-1">
             <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
@@ -90,10 +90,15 @@
             </div>
           </div>
 
-
-          <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
+<div>
+  <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
             <p>{{ errorMessage }}</p>
           </div>
+          <div v-else>
+<p class=" flex justify-center  text-sm bg-white text-white  rounded-md p-2"></p>
+          </div>
+</div>
+      
           <div>
             <div v-if="successMsg" class="font-bold my-1 flex items-center justify-between">
               <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
