@@ -49,13 +49,13 @@
           </div>
 
           <!-- Video feed when not yet captured -->
-          <div v-if="!capturedImage" class="flex-1">
-            <video ref="video" autoplay playsinline class="w-full h-full"></video>
+          <div v-if="!capturedImage" class="flex-1 relative">
+            <video ref="video" autoplay playsinline class="w-full h-full object-cover"></video>
           </div>
 
           <!-- Show captured image when verification is successful -->
-          <div v-if="capturedImage" class="mt-4">
-            <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+          <div v-if="capturedImage" class="mt-4 relative">
+            <img :src="capturedImage" alt="Captured Image" class="w-full h-full object-cover" />
             <p v-if="isValidImage" class="text-green-500 mt-2">Image successfully captured!</p>
             <p v-else class="text-red-500 mt-2">Error: Invalid Image! Please retake.</p>
           </div>
@@ -69,7 +69,6 @@
           <div v-if="!capturedImage" class="font-bold my-1 flex items-center justify-between">
             <Button label="Capture Image" @click="captureImage" class="w-full" />
           </div>
-
         </div>
       </div>
     </Transition>
@@ -77,6 +76,7 @@
     <Toast />
   </div>
 </template>
+
 
 
 <script setup>
@@ -94,8 +94,7 @@ const clientCode = ref("Client Code");
 const coordinates = ref(null);
 const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
-const isValidImage = ref(false); // New state for image validation
-const message = ref('');
+const isValidImage = ref(false); // State for image validation
 let faceMesh = null;
 
 // Initialize face mesh for face detection
@@ -183,10 +182,8 @@ const captureImage = async () => {
 const onFaceMeshResults = (results) => {
   if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     isValidImage.value = true;  // Image is valid
-    message.value = 'Image successfully captured!';
   } else {
     isValidImage.value = false;  // Invalid image
-    message.value = 'Sorry, Invalid picture! Please retake.';
   }
 };
 
@@ -195,6 +192,7 @@ const proceedToESign = () => {
   console.log('Proceeding to E-Sign...');
 };
 </script>
+
 
 <style>
 .p-button {
