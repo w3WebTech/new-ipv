@@ -1,9 +1,10 @@
 <template>
   <div class="card flex justify-center">
+    <!-- Stepper UI -->
     <Stepper value="1" class="basis-[50rem]">
       <div class="font-bold text-lg text-white py-5 flex bg-[#2249A6]">
         <img src="public/logo-2.jpeg" alt="" height="90" width="90" class="mx-4 rounded">
-        <div class="px-5 flex flex-col justify-center items-center text-center"> In person Verification</div>
+        <div class="px-5 flex flex-col justify-center item-center text-center"> In-person Verification</div>
       </div>
 
       <StepPanels class="px-5 my-3">
@@ -14,21 +15,21 @@
               <div class="border-gray-200 rounded bg-gray-50 font-medium">
                 <div class="card px-5 py-5">
                   <div class="gap-2">
-                    <div>
-                      <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
-                      <div class="font-bold flex justify-start">How to do IPV</div>
-                      <div class="font-bold my-2 flex items-center justify-between">
-                        <div>1. Enable GPS</div>
-                        <Button icon="pi pi-map-marker" aria-label="Save" @click="getLocation" />
-                      </div>
-                      <div class="font-bold my-2 flex items-center justify-between">
-                        <div>2. Allow Camera</div>
-                        <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
-                      </div>
+                    <!-- Display User Info -->
+                    <div class="font-bold my-5">Hello, {{ clientName }} ({{ clientCode }})</div>
+                    <div class="font-bold flex justify-start">How to do IPV</div>
+                    <div class="font-bold my-2 flex items-center justify-between">
+                      <div>1. Enable GPS</div>
+                      <Button icon="pi pi-map-marker" aria-label="Save" @click="getLocation" />
+                    </div>
+                    <div class="font-bold my-2 flex items-center justify-between">
+                      <div>2. Allow Camera</div>
+                      <Button icon="pi pi-camera" aria-label="Save" @click="startCamera" />
+                    </div>
 
-                      <div class="font-bold my-2 flex items-center justify-between ">
-                        <Button aria-label="Save" label="PROCEED" @click="openCameraModal" class="w-full my-3"/>
-                      </div>
+                    <!-- Proceed Button to open Modal -->
+                    <div class="font-bold my-2 flex items-center justify-between">
+                      <Button label="PROCEED" @click="openCameraModal" class="w-full my-3"/>
                     </div>
                   </div>
                 </div>
@@ -39,39 +40,36 @@
       </StepPanels>
     </Stepper>
 
-    <!-- Modal for Image Capture -->
+    <!-- Camera Modal -->
     <Transition name="fade absolute">
       <div v-if="isCameraModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen">
         <div class="bg-white p-5 rounded-lg shadow-lg h-[80vh] w-[90vw] flex flex-col">
-          <!-- Display Coordinates -->
           <div v-if="coordinates" class="text-gray-700 my-1">
             <p><strong>Location:</strong> {{ coordinates.latitude }}, {{ coordinates.longitude }}</p>
           </div>
 
-          <!-- Show video feed if verification is not successful -->
-          <div v-if="messageType.value !== 'success'" class="flex-1">
+          <!-- Video feed when not yet captured -->
+          <div v-if="!capturedImage" class="flex-1">
             <video ref="video" autoplay playsinline class="w-full h-full"></video>
           </div>
 
-          <!-- Show captured image if verification is successful -->
-          <div v-if="messageType.value === 'success'" class="mt-4">
+          <!-- Show captured image when verification is successful -->
+          <div v-if="capturedImage" class="mt-4">
             <img :src="capturedImage" alt="Captured Image" class="w-full h-[300px] px-5" />
+            <p v-if="isValidImage" class="text-green-500 mt-2">Image successfully captured!</p>
+            <p v-else class="text-red-500 mt-2">Error: Invalid Image! Please retake.</p>
           </div>
 
-          <!-- Show error or success message -->
-          <div v-if="errorMessage" class="my-1" :class="messageTypeClass">
-            <p>{{ errorMessage }}</p>
-          </div>
-
-          <!-- Proceed to E-Sign if verification is successful -->
-          <div v-if="messageType.value === 'success'" class="flex justify-center my-1">
+          <!-- Proceed to E-Sign Button if success -->
+          <div v-if="isValidImage" class="flex justify-center my-1">
             <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
           </div>
 
-          <!-- Capture Image button if verification is not successful -->
-          <div v-if="messageType.value !== 'success'" class="font-bold my-1 flex items-center justify-between">
+          <!-- Capture Image Button -->
+          <div v-if="!capturedImage" class="font-bold my-1 flex items-center justify-between">
             <Button label="Capture Image" @click="captureImage" class="w-full" />
           </div>
+
         </div>
       </div>
     </Transition>
@@ -79,15 +77,16 @@
     <Toast />
   </div>
 </template>
+
+
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import Button from 'primevue/button';
 import Stepper from 'primevue/stepper';
 import StepPanel from 'primevue/steppanel';
 import Toast from 'primevue/toast';
 import { FaceMesh } from '@mediapipe/face_mesh';
-import 'primeicons/primeicons.css';
 
 const toast = useToast();
 const clientName = ref("Client Name");
@@ -95,59 +94,29 @@ const clientCode = ref("Client Code");
 const coordinates = ref(null);
 const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
-const errorMessage = ref('');
-
+const isValidImage = ref(false); // New state for image validation
+const message = ref('');
 let faceMesh = null;
-const messageType = ref(''); // Reactivity for message type
 
-const messageTypeClass = computed(() => {
-  return {
-    'flex justify-center  text-sm bg-[#E4AEAE]  rounded-md p-2': messageType.value === 'error',
-    'flex justify-center bg-[#AEE3CF]  text-sm  rounded-md p-2': messageType.value === 'success',
-  };
+// Initialize face mesh for face detection
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    faceMesh.onResults(onFaceMeshResults);
+  }
 });
 
-const getLocation = () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        coordinates.value = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-      },
-      (error) => {
-        toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Please allow location access to proceed.',
-          life: 3000,
-        });
-      },
-      { timeout: 10000 }
-    );
-  } else {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Geolocation is not supported by this browser.',
-      life: 3000,
-    });
-  }
-};
-
-const checkCameraPermission = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    const tracks = stream.getTracks();
-    tracks.forEach(track => track.stop());
-    return true;
-  } catch (error) {
-    console.error('Camera access denied:', error);
-    return false;
-  }
-};
-
+// Open camera modal and check permission
 const openCameraModal = async () => {
   const hasPermission = await checkCameraPermission();
   if (hasPermission) {
@@ -157,12 +126,25 @@ const openCameraModal = async () => {
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Camera access is required to capture an image. Please grant camera access.',
+      detail: 'Camera access is required to capture an image.',
       life: 3000,
     });
   }
 };
 
+// Check camera permission
+const checkCameraPermission = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const tracks = stream.getTracks();
+    tracks.forEach(track => track.stop());
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Start video feed from the camera
 const startCamera = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
@@ -181,29 +163,10 @@ const startCamera = async () => {
   }
 };
 
-onMounted(async () => {
-  if (typeof window !== 'undefined') {
-    faceMesh = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    });
-
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-
-    faceMesh.onResults(onFaceMeshResults);
-  }
-});
-
+// Capture the image from video feed
 const captureImage = async () => {
   const video = document.querySelector('video');
-  if (!video) {
-    console.error('Video element not found.');
-    return;
-  }
+  if (!video) return;
 
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
@@ -211,23 +174,32 @@ const captureImage = async () => {
   const context = canvas.getContext('2d');
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
   capturedImage.value = canvas.toDataURL();
-
-  try {
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    await faceMesh.send({ image: imageData });
-  } catch (error) {
-    console.error('Error capturing image:', error);
-  }
+  
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  await faceMesh.send({ image: imageData });
 };
 
+// FaceMesh result processing (image validation)
 const onFaceMeshResults = (results) => {
   if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-    errorMessage.value = 'Verification Completed';
-    messageType.value = 'success';
+    isValidImage.value = true;  // Image is valid
+    message.value = 'Image successfully captured!';
   } else {
-    errorMessage.value = 'Sorry, Invalid picture, please retake!';
-    capturedImage.value = null;
-    messageType.value = 'error';
+    isValidImage.value = false;  // Invalid image
+    message.value = 'Sorry, Invalid picture! Please retake.';
   }
 };
+
+// Proceed to E-Sign functionality (placeholder)
+const proceedToESign = () => {
+  console.log('Proceeding to E-Sign...');
+};
 </script>
+
+<style>
+.p-button {
+ 
+    color: white !important;
+    background:#2249A6 !important;
+    border: 1px solid #2249A6 !important;}
+    </style>
