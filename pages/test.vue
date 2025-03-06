@@ -54,10 +54,14 @@
           </div>
 
           <!-- Show captured image when verification is successful -->
-          <div v-if="capturedImage" class="mt-4 relative">
+          <div v-if="capturedImage && isValidImage" class="mt-4 relative">
             <img :src="capturedImage" alt="Captured Image" class="w-full h-full object-cover" />
-            <p v-if="isValidImage" class="text-green-500 mt-2">Image successfully captured!</p>
-            <p v-else class="text-red-500 mt-2">Error: Invalid Image! Please retake.</p>
+            <p class="text-green-500 mt-2">Image successfully captured!</p>
+          </div>
+
+          <!-- Show error message if the image is invalid -->
+          <div v-if="!isValidImage && !capturedImage" class="text-red-500 mt-2">
+            <p>Error: Invalid Image! Please retake.</p>
           </div>
 
           <!-- Proceed to E-Sign Button if success -->
@@ -76,6 +80,7 @@
     <Toast />
   </div>
 </template>
+
 
 
 
@@ -192,6 +197,7 @@ const proceedToESign = () => {
   console.log('Proceeding to E-Sign...');
 };
 </script>
+
 
 
 <style>
