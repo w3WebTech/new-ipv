@@ -101,7 +101,7 @@
       
           <div>
             <div v-if="successMsg" class="font-bold my-2 flex items-center justify-between my-2">
-              <Button label="Proceed to E-Sign" @click="proceedToESign" class="w-full" />
+              <Button label="Proceed to E-Sign" @click="submitForm" class="w-full" />
             </div>
 
             <!-- Capture Image button if verification is not successful -->
@@ -132,8 +132,8 @@ import Toast from 'primevue/toast';
 import { FaceMesh } from '@mediapipe/face_mesh';
 import 'primeicons/primeicons.css';
 const toast = useToast();
-const clientName = ref("Client Name");  // Placeholder
-const clientCode = ref("Client Code");  // Placeholder
+const clientName = ref("Client Name");  
+const clientCode = ref("Client Code"); 
 const coordinates = ref(null);
 const capturedImage = ref(null);
 const isCameraModalOpen = ref(false);
@@ -282,6 +282,71 @@ const onFaceMeshResults = (results) => {
 
   }
 };
+
+
+
+const submitForm = async () => {
+  // Check if we have all the required values
+  if (!clientName.value || !clientCode.value || !coordinates.value || !capturedImage.value) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Please make sure all fields are filled out.',
+      life: 3000,
+    });
+    return;
+  }
+
+  // Get the current date and time
+  const currentDateTime = new Date().toISOString();  // This will give you the ISO string (e.g., 2025-03-06T14:30:00.000Z)
+
+  // Prepare the data object
+  const data = {
+    clientcode: clientCode.value,
+    clientname: clientName.value,
+    lat: coordinates.value.latitude,
+    lon: coordinates.value.longitude,
+    timestamp: currentDateTime,  // Append the current date and time
+    image: capturedImage.value, // Assuming capturedImage is a base64 string or URL
+  };
+
+  try {
+    // Send the data via a POST request with JSON body
+    const apiUrl = 'https://teamap.gwcindia.in/inspection/api/j/ipvDataSave.php'; // Replace with your actual API URL
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', // Indicate that we are sending JSON
+      },
+      body: JSON.stringify(data), // Convert data object to JSON string
+    });
+
+    if (res.ok) {
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Your data has been successfully submitted!',
+        life: 3000,
+      });
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Something went wrong. Please try again later.',
+        life: 3000,
+      });
+    }
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Failed to submit the form. Please check your network connection.',
+      life: 3000,
+    });
+  }
+};
+
 </script>
 <style>
 .p-button {
