@@ -311,7 +311,7 @@ const submitForm = async () => {
   };
 
   try {
-    // Send the data via a POST request with JSON body
+  
     const apiUrl = 'https://teamap.gwcindia.in/inspection/api/j/ipvDataSave.php'; // Replace with your actual API URL
     const res = await fetch(apiUrl, {
       method: 'POST',
@@ -322,28 +322,28 @@ const submitForm = async () => {
     });
 
     if (res.ok) {
-      toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Your data has been successfully submitted!',
-        life: 3000,
-      });
+      // toast.add({
+      //   severity: 'success',
+      //   summary: 'Success',
+      //   detail: 'Your data has been successfully submitted!',
+      //   life: 3000,
+      // });
     } else {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Something went wrong. Please try again later.',
-        life: 3000,
-      });
+      // toast.add({
+      //   severity: 'error',
+      //   summary: 'Error',
+      //   detail: 'Something went wrong. Please try again later.',
+      //   life: 3000,
+      // });
     }
   } catch (error) {
     console.error('Error submitting form:', error);
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Failed to submit the form. Please check your network connection.',
-      life: 3000,
-    });
+    // toast.add({
+    //   severity: 'error',
+    //   summary: 'Error',
+    //   detail: 'Failed to submit the form. Please check your network connection.',
+    //   life: 3000,
+    // });
   }
 };
 
